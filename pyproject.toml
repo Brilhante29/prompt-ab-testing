@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "prompt-ab-testing"
+version = "0.1.0"
+description = "Prompt variant comparison with deterministic scoring and confidence intervals."
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+prompt-ab-testing = "prompt_ab_testing.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

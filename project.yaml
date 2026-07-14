@@ -1,0 +1,68 @@
+id: 10
+      name: prompt-ab-testing
+      program:
+        id: ai-evaluation-retrieval
+        narrative_fit: Turns prompt choices into measurable experiments inside the AI Evaluation and RAG Platform.
+        shared_assets:
+          - benchmark fixture
+          - deterministic local evaluator
+          - portfolio-compatible result JSON
+      status: benchmarked
+      claim: Prompt A/B testing harness that scores variants, ranks winners, and reports a reproducible confidence interval.
+      stack:
+        - python
+- statistics
+- jsonl
+- docker
+      language_profile:
+        primary: python
+        secondary: []
+        reason: Deterministic evaluation logic is packaged as testable Python use cases with a CLI benchmark.
+      decision_brain:
+        agent_graph:
+          mode: principal-agent-orchestrated
+          source: .portfolio/decision-brain/agent-graph.yaml
+          handoff: sdd/agent-handoff.md
+          local_first_runtime: docker
+        reuse_improvement_loop:
+          source: .portfolio/decision-brain/reuse-improvement-loop.yaml
+          review_path: sdd/reuse-improvement-review.md
+          current_status: backlog_recorded
+        principles:
+          coupling_rule: Core evaluation code depends only on standard-library interfaces and local fixtures.
+          solid: [srp, ocp, lsp, isp, dip]
+          simplicity_rule: Use deterministic fixtures before adding external LLM, vector, or billing providers.
+          testability_rule: Benchmark logic is callable without HTTP, cloud, or paid credentials.
+        stack_profile: python
+        api_style: cli-first
+        messaging: none
+        cloud:
+          mode: none
+          local_provider: kumo
+          real_provider_target: none
+          adapter_rule: Future provider integrations must stay behind ports/adapters.
+        database: fixture-files
+        runtime: python-cli
+        library_policy: Prefer standard library for baseline reproducibility; add provider libraries only behind adapters.
+        record_path: sdd/technical-decision.md
+      architecture:
+        style: clean-architecture
+        reason: The metric and benchmark use cases must stay independent from CLI, fixtures, and future providers.
+        dependency_rule: Domain metrics and application benchmark orchestration do not import interface code.
+      design_system:
+        tokens: .portfolio/design-system/tokens.yaml
+        readme_components: [readme_header, benchmark_card, architecture_card, references_table]
+        diagram_required: true
+      reuse:
+        kit_version: local
+        uses: [catalog, programs, decision-brain, reuse-improvement-loop, architecture, language-profiles, design-system, sdd, harness, templates, skills]
+      benchmark:
+        primary_metric: best_variant_score
+        unit: ratio
+        command: python -m prompt_ab_testing benchmark --output benchmarks/results/prompt-ab-baseline.json
+        result_path: benchmarks/results/prompt-ab-baseline.json
+      release:
+        docker: Dockerfile
+        no_secret_default_path: true
+        readme_has_number: true
+        references_documented: true

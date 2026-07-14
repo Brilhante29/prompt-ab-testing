@@ -1,38 +1,45 @@
 # #10 prompt-ab-testing
 
-**Status:** scaffold
+**Claim:** Prompt A/B testing harness that scores variants, ranks winners, and reports a reproducible confidence interval.
 
-**Proves:** comparacao estatistica de prompts.
+**Benchmark:** `best_variant_score` = `1.0` on local deterministic fixtures. Result file: `benchmarks/results/prompt-ab-baseline.json`.
 
-**Benchmark target:** score_by_variant, confidence_interval.
+## What It Proves
 
-**Stack:** python, typer, duckdb, scipy, docker.
-
-## Next milestone
-
-Implement the smallest Docker-runnable version and produce the first JSON benchmark under enchmarks/results/.
-
-## Run
-
-`ash
-docker build -t prompt-ab-testing .
-docker run --rm prompt-ab-testing
-`
-
-## Benchmark
-
-`ash
-docker run --rm prompt-ab-testing benchmark
-`
-
-| Metric | Value | Unit |
-|---|---:|---|
-| score_by_variant, confidence_interval | pending | pending |
+This repository is part of **AI Evaluation and Retrieval Systems**. It provides one measurable layer of the AI Evaluation & RAG Platform while keeping the default path local-first, Dockerized, and free of paid credentials.
 
 ## Architecture
 
-Defined in sdd/spec.md before implementation.
+```mermaid
+flowchart LR
+  Fixtures["Local fixtures"] --> Core["Evaluation core"]
+  Core --> CLI["CLI benchmark"]
+  CLI --> Result["Benchmark JSON"]
+  Core --> Future["Future provider adapters"]
+```
 
-## References
+Dependency rule: evaluation core does not import provider SDKs, cloud SDKs, web frameworks, or GitHub automation.
 
-See REFERENCES.md.
+## Run Locally
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m prompt_ab_testing benchmark --output benchmarks/results/prompt-ab-baseline.json
+```
+
+## Run With Docker
+
+```powershell
+docker build -t prompt-ab-testing .
+docker run --rm prompt-ab-testing
+```
+
+## Benchmark Result
+
+See `benchmarks/results/prompt-ab-baseline.json`.
+
+## Reuse Contract
+
+- Uses `portfolio-reuse-kit` for agent graph, SDD, validation, design system, and publication gate.
+- Records reusable improvement decisions in `sdd/reuse-improvement-review.md`.
+- Runs without paid secrets by default.

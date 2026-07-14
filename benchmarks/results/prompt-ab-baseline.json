@@ -1,0 +1,26 @@
+{
+  "project": "prompt-ab-testing",
+  "primary_metric": "best_variant_score",
+  "best_variant": "B",
+  "best_variant_score": 1.0,
+  "variants": [
+    {
+      "variant": "A",
+      "name": "concise",
+      "score": 0.93,
+      "ci95": 0.0
+    },
+    {
+      "variant": "B",
+      "name": "grounded",
+      "score": 1.0,
+      "ci95": 0.0
+    },
+    {
+      "variant": "C",
+      "name": "creative",
+      "score": 0.86,
+      "ci95": 0.0
+    }
+  ]
+}

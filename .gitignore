@@ -6,3 +6,4 @@ benchmarks/results/*.json
 dist/
 target/
 build/
+!benchmarks/results/prompt-ab-baseline.json

@@ -1,7 +1,9 @@
 # References
 
-| Reference | License | Used for | Copied code? |
-|---|---|---|---|
-| mlflow, openai-cookbook | pending | architecture/tooling/benchmark reference | no |
+| Source | Reuse Type | Notes |
+|---|---|---|
+| `portfolio-reuse-kit` | architecture, validation, skills, SDD, design system | Governs project structure and publication gate. |
+| Local deterministic fixtures | benchmark idea | Keeps the default path reproducible and free. |
+| Python standard library | implementation dependency | Used for CLI, JSON, statistics, timing, and tests. |
 
-Implementation, fixtures, benchmark scripts and reported results must be project-specific.
+No paid API response or proprietary dataset is required for the default benchmark.

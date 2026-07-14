@@ -1,0 +1,3 @@
+{"id": "c1", "answer": "RAG retrieves context, grounds the answer, and reports recall.", "keywords": ["retrieves", "context", "grounds", "recall"]}
+{"id": "c2", "answer": "Evaluation should report exact match, F1, latency, and cost.", "keywords": ["exact", "f1", "latency", "cost"]}
+{"id": "c3", "answer": "Prompt variants need comparable scores and confidence intervals.", "keywords": ["variants", "scores", "confidence"]}
