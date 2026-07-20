@@ -7,7 +7,7 @@ program:
     - benchmark fixture
     - deterministic local evaluator
     - portfolio-compatible result JSON
-status: benchmarked
+status: published
 claim: Prompt A/B testing harness that scores variants, ranks winners, and reports a reproducible confidence interval.
 stack:
   - python
