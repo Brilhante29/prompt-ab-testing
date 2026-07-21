@@ -1,26 +1,72 @@
 {
   "project": "prompt-ab-testing",
-  "primary_metric": "best_variant_score",
-  "best_variant": "B",
-  "best_variant_score": 1.0,
+  "metric": "highest_mean_score",
+  "value": 0.9365,
+  "unit": "ratio",
+  "timestamp": "2026-07-21T18:31:02.711080+00:00",
+  "command": "python -m prompt_ab_testing benchmark --cases data/fixtures/cases.jsonl --outputs data/fixtures/outputs.jsonl --variants data/fixtures/variants.json --output benchmarks/results/prompt-ab-baseline.json",
+  "repeat": 4,
+  "samples": [
+    1.0,
+    0.8889,
+    0.8571,
+    1.0
+  ],
+  "summary": {
+    "case_count": 4,
+    "variant_count": 3,
+    "highest_mean_score": 0.9365,
+    "leader_count": 1
+  },
+  "environment": {
+    "runtime": "python-3.10.11",
+    "mode": "offline-blinded-output-evaluation",
+    "cases_source": "data/fixtures/cases.jsonl",
+    "outputs_source": "data/fixtures/outputs.jsonl"
+  },
+  "blinded": true,
+  "leading_variant_ids": [
+    "v_01"
+  ],
   "variants": [
     {
-      "variant": "A",
-      "name": "concise",
-      "score": 0.93,
-      "ci95": 0.0
+      "variant_id": "v_01",
+      "mean_score": 0.9365,
+      "ci95_lower": 0.8635,
+      "ci95_upper": 1.0,
+      "sample_count": 4,
+      "scores": [
+        1.0,
+        0.8889,
+        0.8571,
+        1.0
+      ]
     },
     {
-      "variant": "B",
-      "name": "grounded",
-      "score": 1.0,
-      "ci95": 0.0
+      "variant_id": "v_02",
+      "mean_score": 0.7143,
+      "ci95_lower": 0.243,
+      "ci95_upper": 1.0,
+      "sample_count": 4,
+      "scores": [
+        0.0,
+        1.0,
+        0.8571,
+        1.0
+      ]
     },
     {
-      "variant": "C",
-      "name": "creative",
-      "score": 0.86,
-      "ci95": 0.0
+      "variant_id": "v_03",
+      "mean_score": 0.1429,
+      "ci95_lower": 0.0,
+      "ci95_upper": 0.4229,
+      "sample_count": 4,
+      "scores": [
+        0.0,
+        0.5714,
+        0.0,
+        0.0
+      ]
     }
   ]
 }

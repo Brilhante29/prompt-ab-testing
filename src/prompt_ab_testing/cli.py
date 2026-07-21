@@ -1,42 +1,278 @@
 import argparse
 import json
 import math
+import platform
 import re
+import sys
+from collections import Counter
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
-def load_jsonl(path: str) -> list[dict]:
-    return [json.loads(line) for line in Path(path).read_text(encoding="utf-8").splitlines() if line.strip()]
 
-def score(answer: str, keywords: list[str], variant: dict) -> float:
-    words = set(re.findall(r"[a-z0-9]+", answer.lower()))
-    coverage = sum(1 for keyword in keywords if keyword.lower() in words) / len(keywords)
-    return max(0.0, min(1.0, coverage * variant["multiplier"] - variant["verbosity_penalty"]))
+DEFAULT_CASES = "data/fixtures/cases.jsonl"
+DEFAULT_OUTPUTS = "data/fixtures/outputs.jsonl"
+DEFAULT_VARIANTS = "data/fixtures/variants.json"
+DEFAULT_OUTPUT = "benchmarks/results/prompt-ab-baseline.json"
+COMMAND = (
+    "python -m prompt_ab_testing benchmark --cases data/fixtures/cases.jsonl "
+    "--outputs data/fixtures/outputs.jsonl --variants data/fixtures/variants.json "
+    "--output benchmarks/results/prompt-ab-baseline.json"
+)
+SUPPORTED_METRICS = {"exact_match", "token_f1"}
 
-def mean_ci(values: list[float]) -> tuple[float, float]:
+
+class ExperimentValidationError(ValueError):
+    """Raised when an experiment is malformed, incomplete, or unblinded."""
+
+
+def load_jsonl(path: str | Path) -> list[dict[str, Any]]:
+    records: list[dict[str, Any]] = []
+    for line_number, line in enumerate(
+        Path(path).read_text(encoding="utf-8").splitlines(), start=1
+    ):
+        if not line.strip():
+            continue
+        try:
+            value = json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise ExperimentValidationError(
+                f"{path}:{line_number}: invalid JSON"
+            ) from exc
+        if not isinstance(value, dict):
+            raise ExperimentValidationError(f"{path}:{line_number}: expected an object")
+        records.append(value)
+    if not records:
+        raise ExperimentValidationError(f"{path}: expected at least one record")
+    return records
+
+
+def _require_exact_keys(record: dict[str, Any], required: set[str], label: str) -> None:
+    missing = required - record.keys()
+    extra = record.keys() - required
+    if missing or extra:
+        details = []
+        if missing:
+            details.append(f"missing {sorted(missing)}")
+        if extra:
+            details.append(f"unexpected {sorted(extra)}")
+        raise ExperimentValidationError(f"{label}: {', '.join(details)}")
+
+
+def load_variants(path: str | Path) -> list[str]:
+    try:
+        document = json.loads(Path(path).read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ExperimentValidationError(f"{path}: invalid JSON") from exc
+    if not isinstance(document, dict):
+        raise ExperimentValidationError(f"{path}: expected an object")
+    _require_exact_keys(document, {"blinded", "variant_ids"}, "variants")
+    if document["blinded"] is not True:
+        raise ExperimentValidationError("variants.blinded: must be true")
+    variant_ids = document["variant_ids"]
+    if not isinstance(variant_ids, list) or len(variant_ids) < 2:
+        raise ExperimentValidationError(
+            "variants.variant_ids: expected at least two IDs"
+        )
+    if not all(
+        isinstance(variant_id, str)
+        and re.fullmatch(r"v_[0-9]{2,}", variant_id)
+        for variant_id in variant_ids
+    ):
+        raise ExperimentValidationError(
+            "variants.variant_ids: use opaque IDs such as v_01"
+        )
+    if len(set(variant_ids)) != len(variant_ids):
+        raise ExperimentValidationError("variants.variant_ids: IDs must be unique")
+    return variant_ids
+
+
+def validate_cases(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    seen: set[str] = set()
+    for index, case in enumerate(records, start=1):
+        label = f"case[{index}]"
+        _require_exact_keys(case, {"id", "metric", "expected"}, label)
+        if (
+            not isinstance(case["id"], str)
+            or not case["id"].strip()
+            or case["id"] in seen
+        ):
+            raise ExperimentValidationError(
+                f"{label}.id: expected a unique non-empty string"
+            )
+        if case["metric"] not in SUPPORTED_METRICS:
+            raise ExperimentValidationError(
+                f"{label}.metric: expected one of {sorted(SUPPORTED_METRICS)}"
+            )
+        if not isinstance(case["expected"], str) or not case["expected"].strip():
+            raise ExperimentValidationError(
+                f"{label}.expected: expected a non-empty string"
+            )
+        seen.add(case["id"])
+    return records
+
+
+def validate_outputs(
+    records: list[dict[str, Any]], case_ids: set[str], variant_ids: set[str]
+) -> dict[tuple[str, str], str]:
+    matrix: dict[tuple[str, str], str] = {}
+    for index, output in enumerate(records, start=1):
+        label = f"output[{index}]"
+        _require_exact_keys(output, {"case_id", "variant_id", "output"}, label)
+        case_id = output["case_id"]
+        variant_id = output["variant_id"]
+        if case_id not in case_ids:
+            raise ExperimentValidationError(f"{label}.case_id: unknown case")
+        if variant_id not in variant_ids:
+            raise ExperimentValidationError(f"{label}.variant_id: unknown variant")
+        if not isinstance(output["output"], str):
+            raise ExperimentValidationError(f"{label}.output: expected a string")
+        key = (case_id, variant_id)
+        if key in matrix:
+            raise ExperimentValidationError(
+                f"{label}: duplicate output for {case_id}/{variant_id}"
+            )
+        matrix[key] = output["output"]
+
+    expected_matrix = {
+        (case_id, variant_id)
+        for case_id in case_ids
+        for variant_id in variant_ids
+    }
+    missing = sorted(expected_matrix - matrix.keys())
+    if missing:
+        raise ExperimentValidationError(
+            f"outputs: incomplete case/variant matrix; missing={missing}"
+        )
+    return matrix
+
+
+def _tokens(value: str) -> list[str]:
+    return re.findall(r"[a-z0-9]+", value.casefold())
+
+
+def exact_match(expected: str, observed: str) -> float:
+    return 1.0 if _tokens(expected) == _tokens(observed) else 0.0
+
+
+def token_f1(expected: str, observed: str) -> float:
+    expected_tokens = Counter(_tokens(expected))
+    observed_tokens = Counter(_tokens(observed))
+    if not expected_tokens and not observed_tokens:
+        return 1.0
+    if not expected_tokens or not observed_tokens:
+        return 0.0
+    overlap = sum((expected_tokens & observed_tokens).values())
+    if overlap == 0:
+        return 0.0
+    precision = overlap / sum(observed_tokens.values())
+    recall = overlap / sum(expected_tokens.values())
+    return 2 * precision * recall / (precision + recall)
+
+
+def score_case(metric: str, expected: str, observed: str) -> float:
+    if metric == "exact_match":
+        return exact_match(expected, observed)
+    if metric == "token_f1":
+        return token_f1(expected, observed)
+    raise ExperimentValidationError(f"unsupported metric: {metric}")
+
+
+def mean_ci95(values: list[float]) -> tuple[float, float, float]:
     mean = sum(values) / len(values)
     if len(values) == 1:
-        return mean, 0.0
+        return mean, mean, mean
     variance = sum((value - mean) ** 2 for value in values) / (len(values) - 1)
-    ci95 = 1.96 * math.sqrt(variance / len(values))
-    return mean, ci95
+    margin = 1.96 * math.sqrt(variance / len(values))
+    return mean, max(0.0, mean - margin), min(1.0, mean + margin)
 
-def evaluate() -> dict:
-    cases = load_jsonl("data/fixtures/cases.jsonl")
-    variants = json.loads(Path("data/fixtures/variants.json").read_text(encoding="utf-8"))
-    rows = []
-    for variant in variants:
-        scores = [score(case["answer"], case["keywords"], variant) for case in cases]
-        avg, ci = mean_ci(scores)
-        rows.append({"variant": variant["id"], "name": variant["name"], "score": round(avg, 4), "ci95": round(ci, 4)})
-    best = max(rows, key=lambda row: row["score"])
-    return {"project": "prompt-ab-testing", "primary_metric": "best_variant_score", "best_variant": best["variant"], "best_variant_score": best["score"], "variants": rows}
+
+def evaluate(
+    cases_path: str | Path = DEFAULT_CASES,
+    outputs_path: str | Path = DEFAULT_OUTPUTS,
+    variants_path: str | Path = DEFAULT_VARIANTS,
+) -> dict[str, Any]:
+    variant_ids = load_variants(variants_path)
+    cases = validate_cases(load_jsonl(cases_path))
+    matrix = validate_outputs(
+        load_jsonl(outputs_path),
+        {case["id"] for case in cases},
+        set(variant_ids),
+    )
+
+    variants: list[dict[str, Any]] = []
+    for variant_id in variant_ids:
+        scores = [
+            score_case(
+                case["metric"],
+                case["expected"],
+                matrix[(case["id"], variant_id)],
+            )
+            for case in cases
+        ]
+        mean, lower, upper = mean_ci95(scores)
+        variants.append(
+            {
+                "variant_id": variant_id,
+                "mean_score": round(mean, 4),
+                "ci95_lower": round(lower, 4),
+                "ci95_upper": round(upper, 4),
+                "sample_count": len(scores),
+                "scores": [round(score, 4) for score in scores],
+            }
+        )
+
+    highest_score = max(row["mean_score"] for row in variants)
+    leaders = [
+        row["variant_id"]
+        for row in variants
+        if math.isclose(row["mean_score"], highest_score, abs_tol=1e-12)
+    ]
+    return {
+        "project": "prompt-ab-testing",
+        "metric": "highest_mean_score",
+        "value": highest_score,
+        "unit": "ratio",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "command": COMMAND,
+        "repeat": len(cases),
+        "samples": next(
+            row["scores"] for row in variants if row["variant_id"] == leaders[0]
+        ),
+        "summary": {
+            "case_count": len(cases),
+            "variant_count": len(variants),
+            "highest_mean_score": highest_score,
+            "leader_count": len(leaders),
+        },
+        "environment": {
+            "runtime": f"python-{platform.python_version()}",
+            "mode": "offline-blinded-output-evaluation",
+            "cases_source": str(cases_path),
+            "outputs_source": str(outputs_path),
+        },
+        "blinded": True,
+        "leading_variant_ids": leaders,
+        "variants": variants,
+    }
+
 
 def main() -> None:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description="Score supplied blinded prompt outputs; this command does not call an LLM."
+    )
     parser.add_argument("command", choices=["benchmark"], nargs="?", default="benchmark")
-    parser.add_argument("--output", default="benchmarks/results/prompt-ab-baseline.json")
+    parser.add_argument("--cases", default=DEFAULT_CASES)
+    parser.add_argument("--outputs", default=DEFAULT_OUTPUTS)
+    parser.add_argument("--variants", default=DEFAULT_VARIANTS)
+    parser.add_argument("--output", default=DEFAULT_OUTPUT)
     args = parser.parse_args()
-    result = evaluate()
-    Path(args.output).parent.mkdir(parents=True, exist_ok=True)
-    Path(args.output).write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+    try:
+        result = evaluate(args.cases, args.outputs, args.variants)
+    except (OSError, ExperimentValidationError) as exc:
+        print(f"evaluation failed: {exc}", file=sys.stderr)
+        raise SystemExit(2) from exc
+    output = Path(args.output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(result, indent=2))

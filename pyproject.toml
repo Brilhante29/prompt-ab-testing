@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "prompt-ab-testing"
 version = "0.1.0"
-description = "Prompt variant comparison with deterministic scoring and confidence intervals."
+description = "Blinded prompt-output evaluation with deterministic task metrics, samples, and uncertainty."
 requires-python = ">=3.10"
 dependencies = []
 
