@@ -1,15 +1,7 @@
-# #10 prompt-ab-testing: best_variant_score = 1.00
+# #10 prompt-ab-testing: 0.9365 from blinded supplied outputs
 
-Prompt A/B testing harness that scores variants, ranks winners, and reports a reproducible confidence interval.
+The old demo multiplied the same answers by variant-specific constants, so its winner was selected before evaluation. The replacement accepts opaque IDs, deterministic expected answers, and one supplied output per case and variant.
 
-This repository belongs to the AI Evaluation and Retrieval Systems program. Its job is narrow: prove the measurable claim through the selected component pack before adding unrelated infrastructure or features.
+The committed fixture reports `v_01` at `0.9365` across four cases with interval `[0.8635, 1.0]`. Exact match and token F1 determine the scores. If outputs change, the leader can change; equal means remain a tie.
 
-The benchmark is the proof. best_variant_score = 1.00.  The result is stored in `benchmarks/results/prompt-ab-baseline.json` and can be reproduced from the Docker/local path.
-
-The important architecture decision is clean-architecture. The metric and benchmark use cases must stay independent from CLI, fixtures, and future providers.
-
-The default path stays local-first. The project uses python, exposes cli-first, uses messaging mode `none`, and stores data with `fixture-files`. The dependency rule is explicit: Domain metrics and application benchmark orchestration do not import interface code.
-
-The rejected work matters as much as the implemented work. Anything that does not improve the benchmark stays out of the first version.
-
-Post angle: start with the number, show the architecture boundary, then explain which future adapter can be added without changing the core use cases.
+The result demonstrates the harness, not general prompt superiority. Generation stays outside the evaluator so local and cloud runners can share the same blinded contract.

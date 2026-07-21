@@ -1,18 +1,17 @@
 # Benchmark Proof: prompt-ab-testing
 
-## Primary Metric
+- Metric: `highest_mean_score`
+- Value: `0.9365`
+- Leading blinded ID: `v_01`
+- Leader interval: `[0.8635, 1.0]`
+- Cases per variant: `4`
+- Variants: `3`
+- Result: `benchmarks/results/prompt-ab-baseline.json`
 
-- Metric: `best_variant_score`
-- Unit: `ratio`
-- Result: best_variant_score = 1.00
-- Result path: `benchmarks/results/prompt-ab-baseline.json`
+Command:
 
-## Command
+```powershell
+python -m prompt_ab_testing benchmark --cases data/fixtures/cases.jsonl --outputs data/fixtures/outputs.jsonl --variants data/fixtures/variants.json --output benchmarks/results/prompt-ab-baseline.json
+```
 
-    python -m prompt_ab_testing benchmark --output benchmarks/results/prompt-ab-baseline.json
-
-## Evidence
-
-
-
-The README/post number must come from the committed benchmark JSON, not from manual text.
+The interval is a normal approximation over four case scores. It is uncertainty reporting for the fixture, not a significance claim.

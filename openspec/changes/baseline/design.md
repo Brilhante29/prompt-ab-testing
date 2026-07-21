@@ -1,28 +1,23 @@
-# Change Design: baseline
+# Change Design: honest blinded prompt evaluation
 
 ## Decision
 
-- Architecture: clean-architecture
-- Stack: python
-- API style: cli-first
-- Messaging: none
-- Cloud mode: local-first; real providers stay behind adapters.
+Use a functional scoring core with separate JSON/JSONL adapters for variants, cases, and outputs. Only opaque IDs cross the evaluation boundary.
 
 ## Boundaries
 
-- Domain and use cases define behavior.
-- Infrastructure implements ports.
-- Interfaces expose the contract and benchmark command.
+- Prompt runners generate outputs and retain the secret ID-to-prompt mapping.
+- The evaluator validates a complete blinded matrix.
+- Metric functions score expected and observed answers.
+- The CLI persists the shared result.
 
-## Engineering Rules
+## Principles
 
-- Decouple policy from mechanism.
-- Apply SRP, OCP, LSP, ISP, and DIP at the boundaries that matter.
-- Prefer KISS and YAGNI over speculative abstractions.
-- Keep replacement adapters behaviorally compatible with the same port (LSP).
-- Test use cases without HTTP, cloud SDKs, brokers, or UI.
+SRP separates generation, blinding, validation, and scoring. DIP points runners at a stable output contract. KISS uses deterministic standard-library metrics. Equal evidence remains a tie.
 
-## Rejected Alternatives
+## Rejected
 
-Record the architecture, library, transport, broker, or cloud alternatives
-that were considered and why they do not improve this claim.
+- Variant multipliers, bonuses, or penalties.
+- Semantic variant names during scoring.
+- Predetermined winner assertions.
+- Arbitrary tie breaking.

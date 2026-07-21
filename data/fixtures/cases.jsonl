@@ -1,3 +1,4 @@
-{"id": "c1", "answer": "RAG retrieves context, grounds the answer, and reports recall.", "keywords": ["retrieves", "context", "grounds", "recall"]}
-{"id": "c2", "answer": "Evaluation should report exact match, F1, latency, and cost.", "keywords": ["exact", "f1", "latency", "cost"]}
-{"id": "c3", "answer": "Prompt variants need comparable scores and confidence intervals.", "keywords": ["variants", "scores", "confidence"]}
+{"id":"c1","metric":"exact_match","expected":"recall at k"}
+{"id":"c2","metric":"token_f1","expected":"exact match f1 latency cost"}
+{"id":"c3","metric":"token_f1","expected":"comparable scores confidence intervals"}
+{"id":"c4","metric":"exact_match","expected":"local first"}

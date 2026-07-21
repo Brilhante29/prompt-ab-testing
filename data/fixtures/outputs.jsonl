@@ -1,0 +1,12 @@
+{"case_id":"c1","variant_id":"v_01","output":"recall at k"}
+{"case_id":"c1","variant_id":"v_02","output":"The metric is recall at k"}
+{"case_id":"c1","variant_id":"v_03","output":"precision at k"}
+{"case_id":"c2","variant_id":"v_01","output":"exact match f1 latency"}
+{"case_id":"c2","variant_id":"v_02","output":"exact match f1 latency cost"}
+{"case_id":"c2","variant_id":"v_03","output":"latency cost"}
+{"case_id":"c3","variant_id":"v_01","output":"comparable scores intervals"}
+{"case_id":"c3","variant_id":"v_02","output":"comparable scores confidence"}
+{"case_id":"c3","variant_id":"v_03","output":"creative response"}
+{"case_id":"c4","variant_id":"v_01","output":"local first"}
+{"case_id":"c4","variant_id":"v_02","output":"local-first"}
+{"case_id":"c4","variant_id":"v_03","output":"cloud only"}

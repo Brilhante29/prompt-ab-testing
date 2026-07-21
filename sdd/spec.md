@@ -2,11 +2,13 @@
 
 ## Claim
 
-Prompt A/B testing harness that scores variants, ranks winners, and reports a reproducible confidence interval.
+Score supplied prompt-variant outputs against deterministic expected answers while preserving opaque variant IDs and reporting samples and uncertainty.
 
 ## Acceptance Criteria
 
-- Runs locally with `python -m prompt_ab_testing benchmark --output benchmarks/results/prompt-ab-baseline.json`.
-- Runs in Docker with no paid secret.
-- Writes benchmark JSON under `benchmarks/results/`.
-- Keeps domain/evaluation logic independent from CLI and future providers.
+- Require at least two opaque IDs and `blinded: true`.
+- Require exactly one supplied output for every case/variant pair.
+- Support normalized exact match and token F1 without fixture multipliers.
+- Derive leaders from observed scores and preserve ties.
+- Report per-variant means, 95% intervals, sample counts, and raw case scores.
+- Emit the shared benchmark contract and run locally or in Docker without credentials.

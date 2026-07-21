@@ -1,21 +1,13 @@
-# Change Tasks: baseline
+# Change Tasks: honest blinded prompt evaluation
 
-## Planning
-
-- [x] Read `project.yaml` and the selected component pack.
-- [x] Generate the SDD, OpenSpec, and agent context artifacts.
-- [ ] Confirm the architecture and rejected alternatives.
-
-## Implementation
-
-- [ ] Implement the smallest useful slice.
-- [ ] Keep domain/use-case code independent from infrastructure.
-- [ ] Add or update tests for the observable contract.
-- [ ] Update the benchmark and commit the JSON result.
-
-## Verification
-
-- [ ] Run the Docker path.
-- [ ] Run tests and project validation.
-- [ ] Run `openspec validate --strict` when the CLI is installed.
-- [ ] Review `sdd/reuse-improvement-review.md` and patch, backlog, or reject the finding.
+- [x] Remove fixture multipliers and semantic variant names.
+- [x] Define strict blinded experiment contracts.
+- [x] Implement exact match and token F1.
+- [x] Require a complete case/variant matrix.
+- [x] Report samples, intervals, counts, and ties.
+- [x] Add tests proving supplied outputs determine the leader.
+- [x] Emit and commit the shared benchmark result.
+- [x] Align README, SDD, OpenSpec, and project status.
+- [x] Verify the Docker build and container command.
+- [x] Strict OpenSpec delta validation passes.
+- [ ] Confirm remote CI after publication.

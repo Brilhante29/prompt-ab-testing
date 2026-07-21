@@ -1,30 +1,36 @@
 # prompt-ab-testing Specification
 
-## Purpose
+## ADDED Requirements
 
-Prompt A/B testing harness that scores variants, ranks winners, and reports a reproducible confidence interval.
+### Requirement: blinded experiment
 
-## Requirements
+The system SHALL accept only opaque variant IDs with `blinded: true` and SHALL NOT use semantic labels, multipliers, or penalties in scoring.
 
-### Requirement: reproducible portfolio proof
+#### Scenario: blinded variant set
 
-The system SHALL expose a local-first path that proves the primary benchmark
-declared in `project.yaml` without paid credentials.
+- GIVEN at least two opaque variant IDs
+- WHEN the experiment is loaded
+- THEN scoring proceeds without prompt names or semantic labels.
 
-#### Scenario: default verification
+### Requirement: deterministic complete evidence
 
-- GIVEN the repository is checked out with its committed fixtures
-- WHEN the documented Docker or local benchmark command runs
-- THEN a JSON result is written under `benchmarks/results/`
-- AND the README reports the same measured number
+Every case SHALL declare an expected answer and supported deterministic metric, and every variant SHALL supply exactly one output for every case.
 
-### Requirement: replaceable integrations
+#### Scenario: complete output matrix
 
-The system SHALL keep external providers behind ports or adapters whenever a
-provider is not part of the core claim.
+- GIVEN a complete case and variant matrix
+- WHEN evaluation runs
+- THEN every output is scored against its expected answer
+- AND per-variant means, intervals, sample counts, and raw scores are reported
+- AND all tied leaders are preserved.
 
-#### Scenario: adapter substitution
+### Requirement: fail-closed experiment validation
 
-- GIVEN a local adapter and a future real-provider adapter implement the same port
-- WHEN either adapter is selected by configuration
-- THEN the application use cases keep the same observable contract
+The system SHALL reject unknown IDs, duplicate outputs, unblinded metadata, and incomplete matrices without writing a benchmark result.
+
+#### Scenario: incomplete output matrix
+
+- GIVEN a case and variant pair without an output
+- WHEN evaluation runs
+- THEN the command exits with a validation error
+- AND no partial ranking is accepted.

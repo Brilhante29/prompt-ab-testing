@@ -1,27 +1,5 @@
 # Portfolio Impact: prompt-ab-testing
 
-## Program
+This repository contributes a blinded output-evaluation contract to AI Evaluation and Retrieval Systems. A future local or cloud prompt runner can produce the matrix, but no cross-repository integration is claimed yet.
 
-- Program id: `ai-evaluation-retrieval`
-- Program name: AI Evaluation and Retrieval Systems
-- Component pack: `ai-evaluation-retrieval`
-
-## System Story
-
-Turns prompt choices into measurable experiments inside the AI Evaluation and RAG Platform.
-
-This repository is not a standalone demo. It is one part of the AI Evaluation and Retrieval Systems system and should produce reusable fixtures, benchmark patterns, and decisions for later repositories.
-
-## Proficiency Signal
-
-- Primary profile: `python`
-- Stack profile: `python`
-- Stack:
-- python
-- statistics
-- jsonl
-- docker
-
-## Post Angle
-
-Open with best_variant_score = 1.00, then explain why the architecture and local-first path make the result reproducible.
+Portfolio proof: `v_01` has the highest committed mean, `0.9365`, across four cases with sample-wise interval `[0.8635, 1.0]`. The sample is a harness demonstration, not evidence of general superiority.

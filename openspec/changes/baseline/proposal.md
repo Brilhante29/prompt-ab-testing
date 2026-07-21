@@ -1,30 +1,19 @@
-# Change Proposal: baseline
+# Change Proposal: honest blinded prompt evaluation
 
 Project: `prompt-ab-testing` (#10)
 
-## Intent
+## Why
 
-Prompt A/B testing harness that scores variants, ranks winners, and reports a reproducible confidence interval.
-
-## Why This Change Exists
-
-Describe the smallest change that improves the measurable claim or removes a
-known portfolio risk.
+The previous implementation applied per-variant multipliers and penalties to the same answers, which encoded the winner before evaluation.
 
 ## Scope
 
-- In scope: <scope>
-- Out of scope: paid credentials, unrelated infrastructure, and unmeasured features.
-
-## Portfolio Impact
-
-Program: `ai-evaluation-retrieval`
-
-This change should produce evidence, fixtures, decisions, or components that
-can be reused by sibling repositories without moving project-specific behavior
-into the kit.
+- Validate blinded variant IDs, cases, and supplied outputs strictly.
+- Score each case with deterministic exact match or token F1.
+- Require a complete case/variant matrix.
+- Report means, intervals, sample counts, raw scores, and ties.
+- Keep prompt generation and provider SDKs out of the evaluator.
 
 ## Acceptance Signal
 
-The benchmark in `project.yaml` remains reproducible and its result is recorded
-in `benchmarks/results/`.
+Changing supplied outputs can change the leader, malformed experiments fail, and no semantic label or multiplier affects scoring.

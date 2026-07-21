@@ -1,12 +1,14 @@
 # Architecture Decision
 
-Decision: Clean, CLI-first benchmark application.
+Decision: functional core with separate case, output, and blinded-variant file adapters.
 
-Rationale: the project proves evaluation behavior, so metrics and orchestration are kept in pure Python modules.
-CLI, Docker, and future provider adapters depend inward.
+Prompt generation is outside the evaluation boundary. The core validates a complete experiment matrix and scores each supplied answer with the metric declared by its case. Variant IDs are opaque and semantic names are rejected by contract.
+
+This applies SRP and DIP where they matter: runners produce evidence, metrics score evidence, and the CLI persists results. It also keeps the local-first path independent from provider credentials.
 
 Rejected:
 
-- External managed service as default path: would make the baseline non-reproducible.
-- Web UI first: would distract from the benchmark evidence.
-- Broker/event-driven flow: no async workload is required for the baseline.
+- Fixture multipliers or penalties: they encode the winner before evaluation.
+- Variant names in results: they weaken blinding.
+- Arbitrary tie breaking: equal evidence must remain a tie.
+- Provider SDK in the evaluator: generation and evaluation have different responsibilities.

@@ -81,6 +81,13 @@ Push-Location -LiteralPath $root
 try {
   foreach ($file in $benchmarkFiles) {
     Invoke-Checked "benchmark JSON validation: $($file.Name)" { python -m json.tool $file.FullName | Out-Null }
+    $result = Get-Content -Raw -LiteralPath $file.FullName | ConvertFrom-Json
+    $propertyNames = @($result.PSObject.Properties.Name)
+    foreach ($requiredField in @("project", "metric", "value", "unit", "timestamp", "command")) {
+      if ($requiredField -notin $propertyNames) {
+        Add-Failure "Benchmark $($file.Name) is missing shared contract field: $requiredField"
+      }
+    }
   }
 
   if (Test-Path -LiteralPath (Join-Path $root "src") -PathType Container) {
