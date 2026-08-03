@@ -1,7 +1,7 @@
-# #10 prompt-ab-testing: 0.9365 from blinded supplied outputs
+# #10 prompt-ab-testing: 0.9365 without a false winner claim
 
-The old demo multiplied the same answers by variant-specific constants, so its winner was selected before evaluation. The replacement accepts opaque IDs, deterministic expected answers, and one supplied output per case and variant.
+The original demo multiplied identical answers by variant-specific constants, selecting a winner before evaluation. The replacement accepts opaque IDs, deterministic expected answers, and exactly one supplied output per case and variant.
 
-The committed fixture reports `v_01` at `0.9365` across four cases with interval `[0.8635, 1.0]`. Exact match and token F1 determine the scores. If outputs change, the leader can change; equal means remain a tie.
+The committed fixture gives `v_01` an apparent mean lead at `0.9365`. Its paired uplift over `v_02` is `0.2222`, but the exhaustive-bootstrap 95% interval is `[-0.0833, 0.75]`. Because that interval includes zero, the result is inconclusive.
 
-The result demonstrates the harness, not general prompt superiority. Generation stays outside the evaluator so local and cloud runners can share the same blinded contract.
+This is the useful result: the harness can reject unblinded or incomplete experiments, derive rankings from evidence, preserve ties, and refuse an unsupported superiority claim. Prompt generation remains a separate adapter, so local and cloud runners can share the same output contract.

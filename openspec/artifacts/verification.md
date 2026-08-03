@@ -2,7 +2,7 @@
 
 ## Completed
 
-- Five unit tests pass.
+- Six unit tests pass, including paired uplift and tie behavior.
 - Tests prove changed supplied outputs can change the leader.
 - Failure cases cover unblinded metadata and incomplete matrices.
 - The local benchmark emits the shared required fields.

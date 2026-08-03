@@ -3,9 +3,10 @@
   "metric": "highest_mean_score",
   "value": 0.9365,
   "unit": "ratio",
-  "timestamp": "2026-07-21T18:31:02.711080+00:00",
+  "timestamp": "2026-08-03T22:53:01.290158Z",
   "command": "python -m prompt_ab_testing benchmark --cases data/fixtures/cases.jsonl --outputs data/fixtures/outputs.jsonl --variants data/fixtures/variants.json --output benchmarks/results/prompt-ab-baseline.json",
-  "repeat": 4,
+  "repeat": 1,
+  "measured_iterations": 12,
   "samples": [
     1.0,
     0.8889,
@@ -16,7 +17,9 @@
     "case_count": 4,
     "variant_count": 3,
     "highest_mean_score": 0.9365,
-    "leader_count": 1
+    "leader_count": 1,
+    "measured_iterations": 12,
+    "apparent_leader_conclusive": false
   },
   "environment": {
     "runtime": "python-3.10.11",
@@ -28,12 +31,24 @@
   "leading_variant_ids": [
     "v_01"
   ],
+  "paired_comparison": {
+    "leader_variant_id": "v_01",
+    "runner_up_variant_id": "v_02",
+    "mean_uplift": 0.2222,
+    "uplift_ci95_lower": -0.0833,
+    "uplift_ci95_upper": 0.75,
+    "ci95_method": "exhaustive-bootstrap",
+    "bootstrap_resamples": 256,
+    "conclusive": false
+  },
   "variants": [
     {
       "variant_id": "v_01",
       "mean_score": 0.9365,
-      "ci95_lower": 0.8635,
+      "ci95_lower": 0.873,
       "ci95_upper": 1.0,
+      "ci95_method": "exhaustive-bootstrap",
+      "bootstrap_resamples": 256,
       "sample_count": 4,
       "scores": [
         1.0,
@@ -45,8 +60,10 @@
     {
       "variant_id": "v_02",
       "mean_score": 0.7143,
-      "ci95_lower": 0.243,
+      "ci95_lower": 0.25,
       "ci95_upper": 1.0,
+      "ci95_method": "exhaustive-bootstrap",
+      "bootstrap_resamples": 256,
       "sample_count": 4,
       "scores": [
         0.0,
@@ -59,7 +76,9 @@
       "variant_id": "v_03",
       "mean_score": 0.1429,
       "ci95_lower": 0.0,
-      "ci95_upper": 0.4229,
+      "ci95_upper": 0.4286,
+      "ci95_method": "exhaustive-bootstrap",
+      "bootstrap_resamples": 256,
       "sample_count": 4,
       "scores": [
         0.0,

@@ -8,10 +8,10 @@ program:
     - deterministic answer metrics
     - portfolio-compatible benchmark result
 status: benchmarked
-claim: Local-first evaluator for supplied blinded prompt outputs using expected answers, deterministic metrics, sample counts, and uncertainty.
+claim: Local-first evaluator for supplied blinded prompt outputs with deterministic metrics, exhaustive small-sample bootstrap, and paired uncertainty.
 stack:
   - python
-  - statistics
+  - bootstrap-statistics
   - jsonl
   - unittest
   - docker
@@ -32,7 +32,7 @@ decision_brain:
   principles:
     coupling_rule: Scoring consumes provider-neutral cases and blinded outputs and never imports a prompt runner.
     solid: [srp, ocp, lsp, isp, dip]
-    simplicity_rule: Use deterministic task metrics; never use fixture multipliers or semantic variant labels.
+    simplicity_rule: Use deterministic task metrics and paired bootstrap; never use fixture multipliers or semantic variant labels.
     testability_rule: Tests replace supplied outputs and prove that the result changes from evidence.
   stack_profile: python
   api_style: cli-first
@@ -44,11 +44,11 @@ decision_brain:
     adapter_rule: Prompt runners produce the output contract and remain outside the evaluator.
   database: fixture-files
   runtime: python-cli
-  library_policy: Use standard-library metrics for the local benchmark; provider SDKs belong in output producers.
+  library_policy: Use standard-library metrics and bootstrap for the local benchmark; provider SDKs belong in output producers.
   record_path: sdd/technical-decision.md
 architecture:
   style: functional-core-imperative-shell
-  reason: Validation and scoring are pure policies around file-based experiment adapters.
+  reason: Validation, scoring, and paired uncertainty are pure policies around file-based experiment adapters.
   dependency_rule: The evaluator never generates prompts or imports provider, cloud, transport, or billing SDKs.
 design_system:
   tokens: .portfolio/design-system/tokens.yaml

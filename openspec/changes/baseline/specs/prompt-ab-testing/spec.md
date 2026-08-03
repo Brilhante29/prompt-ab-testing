@@ -21,8 +21,30 @@ Every case SHALL declare an expected answer and supported deterministic metric, 
 - GIVEN a complete case and variant matrix
 - WHEN evaluation runs
 - THEN every output is scored against its expected answer
-- AND per-variant means, intervals, sample counts, and raw scores are reported
+- AND per-variant means, bootstrap intervals, sample counts, and raw scores are reported
 - AND all tied leaders are preserved.
+
+### Requirement: paired uncertainty
+
+A unique apparent leader SHALL be compared with the runner-up using paired per-case score differences, and SHALL be conclusive only when the 95% uplift interval is strictly above zero.
+
+#### Scenario: interval includes zero
+
+- GIVEN an apparent leader whose paired uplift interval includes zero
+- WHEN the result is emitted
+- THEN `conclusive` is false
+- AND no general superiority claim is made.
+
+### Requirement: explicit work accounting
+
+The result SHALL distinguish process repetitions from measured case/variant evaluations.
+
+#### Scenario: one four-case three-variant run
+
+- GIVEN four cases and three variants evaluated once
+- WHEN the result is emitted
+- THEN `repeat` is `1`
+- AND `measured_iterations` is `12`.
 
 ### Requirement: fail-closed experiment validation
 

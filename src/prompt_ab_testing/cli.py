@@ -2,8 +2,10 @@ import argparse
 import json
 import math
 import platform
+import random
 import re
 import sys
+from itertools import product
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
@@ -178,13 +180,55 @@ def score_case(metric: str, expected: str, observed: str) -> float:
     raise ExperimentValidationError(f"unsupported metric: {metric}")
 
 
-def mean_ci95(values: list[float]) -> tuple[float, float, float]:
-    mean = sum(values) / len(values)
-    if len(values) == 1:
-        return mean, mean, mean
-    variance = sum((value - mean) ** 2 for value in values) / (len(values) - 1)
-    margin = 1.96 * math.sqrt(variance / len(values))
-    return mean, max(0.0, mean - margin), min(1.0, mean + margin)
+def _percentile(values: list[float], percentile: float) -> float:
+    ordered = sorted(values)
+    position = (len(ordered) - 1) * percentile
+    lower_index = math.floor(position)
+    upper_index = math.ceil(position)
+    if lower_index == upper_index:
+        return ordered[lower_index]
+    fraction = position - lower_index
+    return (
+        ordered[lower_index] * (1 - fraction)
+        + ordered[upper_index] * fraction
+    )
+
+
+def bootstrap_mean_ci95(
+    values: list[float],
+    *,
+    max_resamples: int = 10_000,
+    seed: int = 20_260_803,
+) -> tuple[float, float, float, int, str]:
+    if not values:
+        raise ExperimentValidationError("bootstrap requires at least one value")
+    sample_count = len(values)
+    exact_resamples = sample_count**sample_count
+    if exact_resamples <= max_resamples:
+        index_sets = product(range(sample_count), repeat=sample_count)
+        method = "exhaustive-bootstrap"
+        resample_count = exact_resamples
+    else:
+        generator = random.Random(seed)
+        index_sets = (
+            tuple(generator.randrange(sample_count) for _ in range(sample_count))
+            for _ in range(max_resamples)
+        )
+        method = "seeded-bootstrap"
+        resample_count = max_resamples
+
+    means = [
+        sum(values[index] for index in indices) / sample_count
+        for indices in index_sets
+    ]
+    mean = sum(values) / sample_count
+    return (
+        mean,
+        _percentile(means, 0.025),
+        _percentile(means, 0.975),
+        resample_count,
+        method,
+    )
 
 
 def evaluate(
@@ -201,6 +245,8 @@ def evaluate(
     )
 
     variants: list[dict[str, Any]] = []
+    scores_by_variant: dict[str, list[float]] = {}
+    means_by_variant: dict[str, float] = {}
     for variant_id in variant_ids:
         scores = [
             score_case(
@@ -210,32 +256,77 @@ def evaluate(
             )
             for case in cases
         ]
-        mean, lower, upper = mean_ci95(scores)
+        mean, lower, upper, resample_count, interval_method = bootstrap_mean_ci95(
+            scores
+        )
+        scores_by_variant[variant_id] = scores
+        means_by_variant[variant_id] = mean
         variants.append(
             {
                 "variant_id": variant_id,
                 "mean_score": round(mean, 4),
                 "ci95_lower": round(lower, 4),
                 "ci95_upper": round(upper, 4),
+                "ci95_method": interval_method,
+                "bootstrap_resamples": resample_count,
                 "sample_count": len(scores),
                 "scores": [round(score, 4) for score in scores],
             }
         )
 
-    highest_score = max(row["mean_score"] for row in variants)
+    highest_score_raw = max(means_by_variant.values())
+    highest_score = round(highest_score_raw, 4)
     leaders = [
-        row["variant_id"]
-        for row in variants
-        if math.isclose(row["mean_score"], highest_score, abs_tol=1e-12)
+        variant_id
+        for variant_id in variant_ids
+        if math.isclose(means_by_variant[variant_id], highest_score_raw, abs_tol=1e-12)
     ]
+    comparison: dict[str, Any]
+    if len(leaders) == 1:
+        leader_id = leaders[0]
+        runner_up_id = min(
+            (variant_id for variant_id in variant_ids if variant_id != leader_id),
+            key=lambda variant_id: (-means_by_variant[variant_id], variant_id),
+        )
+        paired_differences = [
+            leader_score - runner_score
+            for leader_score, runner_score in zip(
+                scores_by_variant[leader_id], scores_by_variant[runner_up_id]
+            )
+        ]
+        uplift, lower, upper, resample_count, interval_method = bootstrap_mean_ci95(
+            paired_differences
+        )
+        comparison = {
+            "leader_variant_id": leader_id,
+            "runner_up_variant_id": runner_up_id,
+            "mean_uplift": round(uplift, 4),
+            "uplift_ci95_lower": round(lower, 4),
+            "uplift_ci95_upper": round(upper, 4),
+            "ci95_method": interval_method,
+            "bootstrap_resamples": resample_count,
+            "conclusive": lower > 0,
+        }
+    else:
+        comparison = {
+            "leader_variant_id": None,
+            "runner_up_variant_id": None,
+            "mean_uplift": 0.0,
+            "uplift_ci95_lower": 0.0,
+            "uplift_ci95_upper": 0.0,
+            "ci95_method": "tie",
+            "bootstrap_resamples": 0,
+            "conclusive": False,
+        }
     return {
         "project": "prompt-ab-testing",
         "metric": "highest_mean_score",
         "value": highest_score,
         "unit": "ratio",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "command": COMMAND,
-        "repeat": len(cases),
+        "repeat": 1,
+        "measured_iterations": len(cases) * len(variants),
         "samples": next(
             row["scores"] for row in variants if row["variant_id"] == leaders[0]
         ),
@@ -244,6 +335,8 @@ def evaluate(
             "variant_count": len(variants),
             "highest_mean_score": highest_score,
             "leader_count": len(leaders),
+            "measured_iterations": len(cases) * len(variants),
+            "apparent_leader_conclusive": comparison["conclusive"],
         },
         "environment": {
             "runtime": f"python-{platform.python_version()}",
@@ -253,6 +346,7 @@ def evaluate(
         },
         "blinded": True,
         "leading_variant_ids": leaders,
+        "paired_comparison": comparison,
         "variants": variants,
     }
 

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "benchmark_id": "blinded-paired-bootstrap-v1",
+  "workload_version": "prompt-output-matrix-v1",
+  "cases": "data/fixtures/cases.jsonl",
+  "outputs": "data/fixtures/outputs.jsonl",
+  "variants": "data/fixtures/variants.json",
+  "measured_cases": 4,
+  "variant_count": 3,
+  "measured_outputs": 12,
+  "concurrency": 1,
+  "comparability_key": "prompt-ab:highest-mean:paired-bootstrap-v1:4-cases-3-variants"
+}

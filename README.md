@@ -1,14 +1,28 @@
 # #10 prompt-ab-testing
 
-**Benchmark:** highest blinded mean score `0.9365` for `v_01` across four cases; its sample-wise 95% interval is `[0.8635, 1.0]`.
+**Benchmark:** apparent leader `v_01` scored `0.9365`; paired uplift over `v_02` was `0.2222` with bootstrap 95% CI `[-0.0833, 0.75]`, so the four-case result is **inconclusive**.
 
-**Claim:** A local-first prompt experiment evaluator that scores supplied variant outputs against deterministic expected answers without multipliers, prompt labels, provider calls, or a predetermined winner.
+**Claim:** A local-first, provider-neutral evaluator for complete blinded prompt-output matrices, with deterministic task metrics and paired uncertainty instead of a predetermined winner.
 
 ## What It Proves
 
-The repository proves a reproducible evaluation boundary for prompt experiments. Cases declare either normalized exact match or token F1. Outputs are supplied separately, every case/variant pair is required, and only opaque IDs such as `v_01` enter scoring and reports.
+The repository enforces a reproducible boundary between prompt generation and evaluation. Cases declare normalized exact match or token F1, outputs arrive through a separate file, and every case/variant pair must exist. Scoring sees only opaque IDs such as `v_01`.
 
-The leader is derived from output quality. Changing the supplied outputs can change the leader; ties are reported as multiple `leading_variant_ids` instead of being broken arbitrarily.
+The apparent leader is derived from supplied outputs. Replacing those outputs can change the leader. Ties remain ties, and a leader is not called conclusive unless the paired bootstrap uplift interval is strictly above zero.
+
+## Benchmark Evidence
+
+| Measure | Result |
+|---|---:|
+| Apparent leader mean | `0.9365` |
+| Leader bootstrap 95% CI | `[0.873, 1.0]` |
+| Paired uplift over runner-up | `0.2222` |
+| Paired uplift 95% CI | `[-0.0833, 0.75]` |
+| Conclusion | `inconclusive` |
+| Measured output scores | `12` |
+| Independent process runs | `1` |
+
+Intervals use all `4^4 = 256` exhaustive case resamples. `repeat=1` describes process execution; `measured_iterations=12` describes four cases scored for three variants. The fixture demonstrates the harness and does not establish general prompt superiority.
 
 ## Input Contract
 
@@ -16,7 +30,7 @@ The leader is derived from output quality. Changing the supplied outputs can cha
 - `data/fixtures/cases.jsonl`: case ID, deterministic metric, and expected answer.
 - `data/fixtures/outputs.jsonl`: one supplied output for every case and variant.
 
-Malformed IDs, unblinded metadata, duplicates, unknown records, and incomplete experiment matrices fail validation.
+Malformed IDs, unblinded metadata, duplicates, unknown records, and incomplete matrices fail before a result is written.
 
 ## Architecture
 
@@ -26,27 +40,29 @@ flowchart LR
   Outputs["Supplied blinded outputs"] --> Gate
   IDs["Opaque variant IDs"] --> Gate
   Gate --> Eval["Exact match and token F1"]
-  Eval --> Result["Means, intervals, samples, shared JSON"]
+  Eval --> Bootstrap["Individual and paired bootstrap"]
+  Bootstrap --> Result["V1 result and provenance-bound V2 evidence"]
 ```
 
-Scoring is independent from prompt generation and provider SDKs. Any local or cloud runner can produce the output matrix without entering the evaluation core.
+The functional core depends on experiment records, not provider, cloud, transport, or billing SDKs. Local and cloud prompt runners can implement the same output contract without changing evaluation policy.
 
-## Run Locally
+## Run
 
 ```powershell
 $env:PYTHONPATH = "src"
-python -m prompt_ab_testing benchmark --cases data/fixtures/cases.jsonl --outputs data/fixtures/outputs.jsonl --variants data/fixtures/variants.json --output benchmarks/results/prompt-ab-baseline.json
+python -m prompt_ab_testing benchmark --output benchmarks/results/prompt-ab-baseline.json
 ```
-
-## Run With Docker
 
 ```powershell
 docker build -t prompt-ab-testing .
-docker run --rm prompt-ab-testing
+docker run --rm --network none prompt-ab-testing
 ```
 
-The result follows `.portfolio/contracts/benchmark-result.schema.json` and is committed at `benchmarks/results/prompt-ab-baseline.json`.
+## Validate
 
-## Scope
+```powershell
+python -m unittest discover -s tests -v
+./tools/validate-project.ps1
+```
 
-The four-case fixture demonstrates the harness, not statistical significance or general prompt superiority. The reported interval is a normal approximation over case scores and remains wide for small samples. Production experiments should add representative cases before selecting a prompt.
+The raw result is `benchmarks/results/prompt-ab-baseline.json`. Publication adds schema-validated evidence at `benchmarks/publication/prompt-ab-baseline-v2.json`, binding the result to the clean source commit, exact Docker image, committed fixtures, benchmark config, and validation lock.

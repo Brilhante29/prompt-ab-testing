@@ -43,7 +43,12 @@ $requiredFiles = @(
   "sdd/architecture-decision.md",
   "sdd/technical-decision.md",
   "sdd/agent-handoff.md",
-  "sdd/reuse-improvement-review.md"
+  "sdd/reuse-improvement-review.md",
+  "requirements-validation.lock",
+  "benchmarks/config/prompt-ab-baseline-v2.json",
+  ".portfolio/contracts/benchmark-result-v2.schema.json",
+  "tools/generate-publication-benchmark.py",
+  "tools/validate_publication.py"
 )
 foreach ($file in $requiredFiles) { Require-File $file }
 
@@ -89,6 +94,8 @@ try {
       }
     }
   }
+
+  Invoke-Checked "publication evidence validation" { python (Join-Path $root "tools/validate_publication.py") }
 
   if (Test-Path -LiteralPath (Join-Path $root "src") -PathType Container) {
     $previousPythonPath = $env:PYTHONPATH

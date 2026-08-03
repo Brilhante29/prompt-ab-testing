@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "prompt-ab-testing"
-version = "0.1.0"
+version = "0.2.0"
 description = "Blinded prompt-output evaluation with deterministic task metrics, samples, and uncertainty."
 requires-python = ">=3.10"
 dependencies = []
