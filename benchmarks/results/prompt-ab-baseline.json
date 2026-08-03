@@ -3,7 +3,7 @@
   "metric": "highest_mean_score",
   "value": 0.9365,
   "unit": "ratio",
-  "timestamp": "2026-08-03T22:53:01.290158Z",
+  "timestamp": "2026-08-03T22:58:50.092038Z",
   "command": "python -m prompt_ab_testing benchmark --cases data/fixtures/cases.jsonl --outputs data/fixtures/outputs.jsonl --variants data/fixtures/variants.json --output benchmarks/results/prompt-ab-baseline.json",
   "repeat": 1,
   "measured_iterations": 12,
@@ -22,7 +22,7 @@
     "apparent_leader_conclusive": false
   },
   "environment": {
-    "runtime": "python-3.10.11",
+    "runtime": "python-3.12.13",
     "mode": "offline-blinded-output-evaluation",
     "cases_source": "data/fixtures/cases.jsonl",
     "outputs_source": "data/fixtures/outputs.jsonl"

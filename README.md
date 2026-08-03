@@ -65,4 +65,4 @@ python -m unittest discover -s tests -v
 ./tools/validate-project.ps1
 ```
 
-The raw result is `benchmarks/results/prompt-ab-baseline.json`. Publication adds schema-validated evidence at `benchmarks/publication/prompt-ab-baseline-v2.json`, binding the result to the clean source commit, exact Docker image, committed fixtures, benchmark config, and validation lock.
+The raw result is `benchmarks/results/prompt-ab-baseline.json`. Published schema-validated evidence is committed at `benchmarks/publication/prompt-ab-baseline-v2.json`, binding the result to the clean source commit, exact Docker image, committed fixtures, benchmark config, and validation lock.

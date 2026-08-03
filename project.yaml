@@ -7,7 +7,7 @@ program:
     - blinded experiment contract
     - deterministic answer metrics
     - portfolio-compatible benchmark result
-status: benchmarked
+status: published
 claim: Local-first evaluator for supplied blinded prompt outputs with deterministic metrics, exhaustive small-sample bootstrap, and paired uncertainty.
 stack:
   - python
@@ -61,7 +61,7 @@ benchmark:
   primary_metric: highest_mean_score
   unit: ratio
   command: python -m prompt_ab_testing benchmark --cases data/fixtures/cases.jsonl --outputs data/fixtures/outputs.jsonl --variants data/fixtures/variants.json --output benchmarks/results/prompt-ab-baseline.json
-  result_path: benchmarks/results/prompt-ab-baseline.json
+  result_path: benchmarks/publication/prompt-ab-baseline-v2.json
 release:
   docker: Dockerfile
   no_secret_default_path: true

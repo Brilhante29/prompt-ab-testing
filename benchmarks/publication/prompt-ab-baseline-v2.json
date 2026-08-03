@@ -1,0 +1,59 @@
+{
+  "benchmark_id": "blinded-paired-bootstrap-v1",
+  "comparability_key": "prompt-ab:highest-mean:paired-bootstrap-v1:4-cases-3-variants",
+  "environment": {
+    "architecture": "amd64",
+    "hardware_class": "docker-local",
+    "runtime": "python-3.12.13-slim"
+  },
+  "execution": {
+    "command": "docker run --name pub_prompt_ab_testing --network none prompt-ab-testing:publication",
+    "duration_seconds": 0.870912,
+    "exit_code": 0,
+    "repeat": 1,
+    "started_at": "2026-08-03T22:58:49.355780Z"
+  },
+  "metrics": [
+    {
+      "direction": "higher_is_better",
+      "failures": 0,
+      "name": "highest_mean_score",
+      "samples": [
+        1.0,
+        0.8889,
+        0.8571,
+        1.0
+      ],
+      "summary": {
+        "apparent_leader_conclusive": false,
+        "case_count": 4,
+        "highest_mean_score": 0.9365,
+        "leader_count": 1,
+        "measured_iterations": 12,
+        "variant_count": 3
+      },
+      "unit": "ratio",
+      "value": 0.9365
+    }
+  ],
+  "project": "prompt-ab-testing",
+  "provenance": {
+    "artifact_digest": "sha256:a355c5613fa7e7c2ea3bdce240617bed279719cbc37615bb2fcdbcb75f11d7d0",
+    "clean_tree": true,
+    "dependency_lock_digest": "sha256:5150977019231f9bac14f520a2533245120f78b7b0c1ac107a034329f9f40eba",
+    "image_digest": "sha256:03bf500c003914401425d10c163c11e42ee438f8e9f75f9fd199438166ecb361",
+    "image_ref": "prompt-ab-testing:publication@sha256:03bf500c003914401425d10c163c11e42ee438f8e9f75f9fd199438166ecb361",
+    "producer": "local",
+    "source_commit": "b7ea2d06bbf520dced03f3671c5ffde9b76647f9"
+  },
+  "run_id": "1ca35b0d-34dd-4e73-8adc-5c96b97cc545",
+  "schema_version": 2,
+  "workload": {
+    "concurrency": 1,
+    "config_digest": "sha256:434f182bc4456f43dbb8653aedb5618b22c9530f032fe95a4563ac2cd7a144ed",
+    "fixture_digest": "sha256:b77986dac3d1c33d1815770c2112ad199c48accb10f1af190a235375752f8632",
+    "measured_iterations": 12,
+    "version": "prompt-output-matrix-v1",
+    "warmup_iterations": 0
+  }
+}

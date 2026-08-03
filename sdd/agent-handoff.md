@@ -8,7 +8,7 @@ This file records verifiable state and decisions, not private reasoning.
 - Baseline apparent leader: `v_01`, mean `0.9365`, bootstrap CI `[0.873, 1.0]`.
 - Paired uplift over `v_02`: `0.2222`, CI `[-0.0833, 0.75]`; conclusion is `inconclusive`.
 - One process run scores 12 case/variant outputs; `repeat=1` and `measured_iterations=12`.
-- Source publication gates are implemented; final V2 evidence and remote CI are pending.
+- Status is `published`; V2 points to source SHA `b7ea2d06bbf520dced03f3671c5ffde9b76647f9`, whose CI run `30860542964` passed every step.
 
 ## Contracts
 
@@ -24,8 +24,7 @@ This file records verifiable state and decisions, not private reasoning.
 1. Run `python -m unittest discover -s tests -v`.
 2. Run `./tools/validate-project.ps1 -SkipDocker`.
 3. Build and execute Docker with `--network none`.
-4. Commit a clean source tree before generating V2 evidence.
-5. Generate V2 only through `tools/generate-publication-benchmark.py`.
-6. Publish only after the exact pushed commit has green remote CI.
+4. Generate V2 only through `tools/generate-publication-benchmark.py` from a clean source commit.
+5. Require any new publication commit to pass GitHub Actions on its exact SHA.
 
 Do not add a provider SDK to the evaluator or describe the four-case result as a statistically established prompt winner.
