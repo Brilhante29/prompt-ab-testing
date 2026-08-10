@@ -2,8 +2,8 @@
   "schema_version": 1,
   "templates": {
     "v_01": {
-      "system": "Answer the question using only the supplied context.",
-      "user_template": "{input}"
+      "system": "Answer the question using only the supplied context. Explain the answer in one complete sentence.",
+      "user_template": "Question task:\n{input}\n\nWrite one explanatory sentence."
     },
     "v_02": {
       "system": "You are a precise extraction system. Return only the shortest answer phrase in lowercase. Do not explain and do not add labels.",
