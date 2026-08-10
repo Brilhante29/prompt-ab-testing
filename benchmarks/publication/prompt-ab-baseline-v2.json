@@ -1,17 +1,17 @@
 {
-  "benchmark_id": "blinded-paired-bootstrap-v1",
-  "comparability_key": "prompt-ab:highest-mean:paired-bootstrap-v1:4-cases-3-variants",
+  "benchmark_id": "local-llm-blinded-prompt-ab-v2",
+  "comparability_key": "prompt-ab:qwen2.5-coder-0.5b:highest-mean:10-cases-3-variants-v2",
   "environment": {
-    "architecture": "amd64",
-    "hardware_class": "docker-local",
+    "architecture": "x86_64",
+    "hardware_class": "local-cpu",
     "runtime": "python-3.12.13-slim"
   },
   "execution": {
-    "command": "docker run --name pub_prompt_ab_testing --network none prompt-ab-testing:publication",
-    "duration_seconds": 0.870912,
+    "command": "docker run --name pub_prompt_ab_final --network none prompt-ab-testing:ai-eval-final",
+    "duration_seconds": 0.908577,
     "exit_code": 0,
     "repeat": 1,
-    "started_at": "2026-08-03T22:58:49.355780Z"
+    "started_at": "2026-08-10T01:21:29.621805Z"
   },
   "metrics": [
     {
@@ -20,40 +20,46 @@
       "name": "highest_mean_score",
       "samples": [
         1.0,
-        0.8889,
-        0.8571,
+        1.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        1.0,
         1.0
       ],
       "summary": {
         "apparent_leader_conclusive": false,
-        "case_count": 4,
-        "highest_mean_score": 0.9365,
-        "leader_count": 1,
-        "measured_iterations": 12,
+        "case_count": 10,
+        "highest_mean_score": 0.8,
+        "leader_count": 2,
+        "measured_iterations": 30,
         "variant_count": 3
       },
       "unit": "ratio",
-      "value": 0.9365
+      "value": 0.8
     }
   ],
   "project": "prompt-ab-testing",
   "provenance": {
-    "artifact_digest": "sha256:a355c5613fa7e7c2ea3bdce240617bed279719cbc37615bb2fcdbcb75f11d7d0",
+    "artifact_digest": "sha256:1d2847a1a0c99a3f658145100e10f49f0a16070a298cff0a99e64b5e9a7d784f",
     "clean_tree": true,
     "dependency_lock_digest": "sha256:5150977019231f9bac14f520a2533245120f78b7b0c1ac107a034329f9f40eba",
-    "image_digest": "sha256:03bf500c003914401425d10c163c11e42ee438f8e9f75f9fd199438166ecb361",
-    "image_ref": "prompt-ab-testing:publication@sha256:03bf500c003914401425d10c163c11e42ee438f8e9f75f9fd199438166ecb361",
+    "image_digest": "sha256:48c8a30b4576b6f78c0de8648c4bc2f1c77d2cc1d3be1ba5d8f31e557222823d",
+    "image_ref": "prompt-ab-testing:ai-eval-final@sha256:48c8a30b4576b6f78c0de8648c4bc2f1c77d2cc1d3be1ba5d8f31e557222823d",
     "producer": "local",
-    "source_commit": "b7ea2d06bbf520dced03f3671c5ffde9b76647f9"
+    "source_commit": "371710294a6e17464adc9631561995399bdbe966"
   },
-  "run_id": "1ca35b0d-34dd-4e73-8adc-5c96b97cc545",
+  "run_id": "b0cdb7ab-f649-4541-9d7e-b7f3d116775b",
   "schema_version": 2,
   "workload": {
     "concurrency": 1,
-    "config_digest": "sha256:434f182bc4456f43dbb8653aedb5618b22c9530f032fe95a4563ac2cd7a144ed",
-    "fixture_digest": "sha256:b77986dac3d1c33d1815770c2112ad199c48accb10f1af190a235375752f8632",
-    "measured_iterations": 12,
-    "version": "prompt-output-matrix-v1",
+    "config_digest": "sha256:d6e431090d5cfe37085128645e3182909909df01a5aaf955e678a8661006325e",
+    "fixture_digest": "sha256:44cd4d4d37230191b08a0f4ea3bdd7e59ff0ecb5d480f083137f910216cba8cd",
+    "measured_iterations": 30,
+    "version": "prompt-output-matrix-v2",
     "warmup_iterations": 0
   }
 }
