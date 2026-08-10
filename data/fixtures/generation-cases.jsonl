@@ -1,0 +1,10 @@
+{"id":"c1","input":"Context: The event platform uses Kafka because consumers must replay a durable ordered log. Question: Which broker does the platform use?"}
+{"id":"c2","input":"Context: The payments service is implemented in Kotlin to use coroutines and null safety on the JVM. Question: Which language implements the service?"}
+{"id":"c3","input":"Context: Retrieval quality is measured with recall at k, which checks whether relevant documents appear in the top results. Question: Which retrieval metric is used?"}
+{"id":"c4","input":"Context: Cloud behavior is tested locally with Kumo before adapters target AWS. Question: Which local cloud emulator is used?"}
+{"id":"c5","input":"Context: The dashboard uses GraphQL when clients need selectable nested fields from a typed schema. Question: Which API style does the dashboard use?"}
+{"id":"c6","input":"Context: Tail latency is reported as p99 so the slowest one percent remains visible. Question: Which percentile is reported?"}
+{"id":"c7","input":"Context: The transactional outbox persists the domain change and pending message in one database transaction. Question: Which pattern prevents event loss?"}
+{"id":"c8","input":"Context: PostgreSQL stores embedding vectors through pgvector and performs nearest-neighbor lookup. Question: Which extension stores the vectors?"}
+{"id":"c9","input":"Context: Every experiment reports a confidence interval so readers can see statistical uncertainty. Question: What interval is reported?"}
+{"id":"c10","input":"Context: Trained models and their lineage are registered in MLflow before deployment. Question: Which platform registers the models?"}

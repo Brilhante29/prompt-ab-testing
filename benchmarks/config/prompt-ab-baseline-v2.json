@@ -1,13 +1,23 @@
 {
   "schema_version": 1,
-  "benchmark_id": "blinded-paired-bootstrap-v1",
-  "workload_version": "prompt-output-matrix-v1",
+  "benchmark_id": "local-llm-blinded-prompt-ab-v2",
+  "workload_version": "prompt-output-matrix-v2",
   "cases": "data/fixtures/cases.jsonl",
   "outputs": "data/fixtures/outputs.jsonl",
   "variants": "data/fixtures/variants.json",
-  "measured_cases": 4,
+  "generation_cases": "data/fixtures/generation-cases.jsonl",
+  "templates": "data/fixtures/prompt-templates.json",
+  "output_provenance": "data/fixtures/outputs.provenance.json",
+  "provider_interface": "openai-compatible-chat-completions",
+  "provider_runtime": "ollama",
+  "model": "qwen2.5-coder:0.5b",
+  "model_digest": "sha256:4ff64a7f502a08b7616edb8ca0a79eb1853fc363d842b7df4b46915d11a3fb09",
+  "temperature": 0,
+  "max_tokens": 24,
+  "warmup_requests": 1,
+  "measured_cases": 10,
   "variant_count": 3,
-  "measured_outputs": 12,
+  "measured_outputs": 30,
   "concurrency": 1,
-  "comparability_key": "prompt-ab:highest-mean:paired-bootstrap-v1:4-cases-3-variants"
+  "comparability_key": "prompt-ab:qwen2.5-coder-0.5b:highest-mean:10-cases-3-variants-v2"
 }

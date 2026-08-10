@@ -1,4 +1,10 @@
-{"id":"c1","metric":"exact_match","expected":"recall at k"}
-{"id":"c2","metric":"token_f1","expected":"exact match f1 latency cost"}
-{"id":"c3","metric":"token_f1","expected":"comparable scores confidence intervals"}
-{"id":"c4","metric":"exact_match","expected":"local first"}
+{"id":"c1","metric":"exact_match","expected":"kafka"}
+{"id":"c2","metric":"exact_match","expected":"kotlin"}
+{"id":"c3","metric":"exact_match","expected":"recall at k"}
+{"id":"c4","metric":"exact_match","expected":"kumo"}
+{"id":"c5","metric":"exact_match","expected":"graphql"}
+{"id":"c6","metric":"exact_match","expected":"p99"}
+{"id":"c7","metric":"exact_match","expected":"transactional outbox"}
+{"id":"c8","metric":"exact_match","expected":"pgvector"}
+{"id":"c9","metric":"exact_match","expected":"confidence interval"}
+{"id":"c10","metric":"exact_match","expected":"mlflow"}

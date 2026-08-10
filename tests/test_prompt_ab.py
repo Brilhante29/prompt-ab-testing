@@ -2,6 +2,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from urllib.request import Request
 
 from prompt_ab_testing.cli import (
     ExperimentValidationError,
@@ -9,6 +10,25 @@ from prompt_ab_testing.cli import (
     exact_match,
     token_f1,
 )
+from prompt_ab_testing.producer import (
+    GenerationValidationError,
+    OpenAICompatibleGenerator,
+    generate_output_matrix,
+)
+
+
+class FakeResponse:
+    def __init__(self, document):
+        self.document = document
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_args):
+        return False
+
+    def read(self):
+        return json.dumps(self.document).encode("utf-8")
 
 
 class PromptABTests(unittest.TestCase):
@@ -38,27 +58,16 @@ class PromptABTests(unittest.TestCase):
         result = evaluate()
 
         self.assertTrue(result["blinded"])
-        self.assertEqual(result["summary"]["case_count"], 4)
+        self.assertEqual(result["summary"]["case_count"], 10)
         self.assertEqual(result["summary"]["variant_count"], 3)
-        self.assertEqual(result["leading_variant_ids"], ["v_01"])
         self.assertEqual(result["repeat"], 1)
-        self.assertEqual(result["measured_iterations"], 12)
+        self.assertEqual(result["measured_iterations"], 30)
         self.assertNotIn("name", result["variants"][0])
         self.assertNotIn("multiplier", json.dumps(result))
         leader = result["variants"][0]
-        self.assertEqual(leader["sample_count"], 4)
-        self.assertEqual(leader["ci95_lower"], 0.873)
-        self.assertEqual(leader["ci95_upper"], 1.0)
-        self.assertEqual(leader["ci95_method"], "exhaustive-bootstrap")
-        self.assertEqual(leader["bootstrap_resamples"], 256)
-
-        comparison = result["paired_comparison"]
-        self.assertEqual(comparison["leader_variant_id"], "v_01")
-        self.assertEqual(comparison["runner_up_variant_id"], "v_02")
-        self.assertEqual(comparison["mean_uplift"], 0.2222)
-        self.assertEqual(comparison["uplift_ci95_lower"], -0.0833)
-        self.assertEqual(comparison["uplift_ci95_upper"], 0.75)
-        self.assertFalse(comparison["conclusive"])
+        self.assertEqual(leader["sample_count"], 10)
+        self.assertEqual(leader["ci95_method"], "seeded-bootstrap")
+        self.assertEqual(leader["bootstrap_resamples"], 10_000)
 
     def test_emits_shared_contract_and_uncertainty(self):
         result = evaluate()
@@ -141,6 +150,98 @@ class PromptABTests(unittest.TestCase):
         )
         with self.assertRaisesRegex(ExperimentValidationError, "incomplete"):
             evaluate(cases, outputs, variants)
+
+    def test_generates_complete_matrix_with_provider_provenance(self):
+        generation_cases = self.write_jsonl(
+            "generation.jsonl", [{"id": "c", "input": "Answer from context: kafka"}]
+        )
+        templates = self.write_json(
+            "templates.json",
+            {
+                "schema_version": 1,
+                "templates": {
+                    "v_01": {"system": "answer", "user_template": "{input}"},
+                    "v_02": {"system": "extract", "user_template": "Q: {input}"},
+                },
+            },
+        )
+        output = Path(self.temp_dir.name, "outputs.jsonl")
+        provenance = Path(self.temp_dir.name, "provenance.json")
+        requests = []
+
+        def opener(request: Request, _timeout: float):
+            requests.append(json.loads(request.data.decode("utf-8")))
+            return FakeResponse(
+                {
+                    "choices": [{"message": {"content": "kafka"}}],
+                    "usage": {"prompt_tokens": 7, "completion_tokens": 1},
+                }
+            )
+
+        generator = OpenAICompatibleGenerator(
+            provider_id="test-provider",
+            base_url="http://provider.test/v1",
+            model="test-model",
+            model_digest="sha256:" + "a" * 64,
+            timeout_seconds=1,
+            opener=opener,
+        )
+        result = generate_output_matrix(
+            generator=generator,
+            cases_path=generation_cases,
+            templates_path=templates,
+            variant_ids=["v_01", "v_02"],
+            output_path=output,
+            provenance_path=provenance,
+            warmup_iterations=1,
+            producer_source_commit="b" * 40,
+            producer_image_digest="sha256:" + "c" * 64,
+        )
+
+        self.assertEqual(len(requests), 3)
+        self.assertEqual(len(output.read_text(encoding="utf-8").splitlines()), 2)
+        self.assertEqual(result["generation"]["measured_requests"], 2)
+        self.assertEqual(result["generation"]["failures"], 0)
+        self.assertEqual(result["generation"]["prompt_tokens"], 14)
+        self.assertEqual(result["provider"]["model"], "test-model")
+        self.assertEqual(result["producer"]["source_commit"], "b" * 40)
+        self.assertEqual(
+            result["artifacts"]["outputs_sha256"],
+            json.loads(provenance.read_text(encoding="utf-8"))["artifacts"][
+                "outputs_sha256"
+            ],
+        )
+
+    def test_rejects_template_variant_mismatch(self):
+        generation_cases = self.write_jsonl(
+            "generation.jsonl", [{"id": "c", "input": "input"}]
+        )
+        templates = self.write_json(
+            "templates.json",
+            {
+                "schema_version": 1,
+                "templates": {
+                    "v_01": {"system": "answer", "user_template": "{input}"},
+                    "v_03": {"system": "answer", "user_template": "{input}"},
+                },
+            },
+        )
+        generator = OpenAICompatibleGenerator(
+            provider_id="test",
+            base_url="http://provider.test/v1",
+            model="model",
+            model_digest="sha256:" + "a" * 64,
+            timeout_seconds=1,
+        )
+        with self.assertRaisesRegex(GenerationValidationError, "must match"):
+            generate_output_matrix(
+                generator=generator,
+                cases_path=generation_cases,
+                templates_path=templates,
+                variant_ids=["v_01", "v_02"],
+                output_path=Path(self.temp_dir.name, "outputs.jsonl"),
+                provenance_path=Path(self.temp_dir.name, "provenance.json"),
+            )
 
 
 if __name__ == "__main__":

@@ -1,12 +1,30 @@
-{"case_id":"c1","variant_id":"v_01","output":"recall at k"}
-{"case_id":"c1","variant_id":"v_02","output":"The metric is recall at k"}
-{"case_id":"c1","variant_id":"v_03","output":"precision at k"}
-{"case_id":"c2","variant_id":"v_01","output":"exact match f1 latency"}
-{"case_id":"c2","variant_id":"v_02","output":"exact match f1 latency cost"}
-{"case_id":"c2","variant_id":"v_03","output":"latency cost"}
-{"case_id":"c3","variant_id":"v_01","output":"comparable scores intervals"}
-{"case_id":"c3","variant_id":"v_02","output":"comparable scores confidence"}
-{"case_id":"c3","variant_id":"v_03","output":"creative response"}
-{"case_id":"c4","variant_id":"v_01","output":"local first"}
-{"case_id":"c4","variant_id":"v_02","output":"local-first"}
-{"case_id":"c4","variant_id":"v_03","output":"cloud only"}
+{"case_id":"c1","variant_id":"v_01","output":"kafka"}
+{"case_id":"c1","variant_id":"v_02","output":"kafka"}
+{"case_id":"c1","variant_id":"v_03","output":"kafka"}
+{"case_id":"c2","variant_id":"v_01","output":"kotlin"}
+{"case_id":"c2","variant_id":"v_02","output":"kotlin"}
+{"case_id":"c2","variant_id":"v_03","output":"kotlin"}
+{"case_id":"c3","variant_id":"v_01","output":"recall at k"}
+{"case_id":"c3","variant_id":"v_02","output":"recall at k"}
+{"case_id":"c3","variant_id":"v_03","output":"recall at k"}
+{"case_id":"c4","variant_id":"v_01","output":"kumo"}
+{"case_id":"c4","variant_id":"v_02","output":"kumo"}
+{"case_id":"c4","variant_id":"v_03","output":"kumo"}
+{"case_id":"c5","variant_id":"v_01","output":"graphql"}
+{"case_id":"c5","variant_id":"v_02","output":"graphql"}
+{"case_id":"c5","variant_id":"v_03","output":"graphql"}
+{"case_id":"c6","variant_id":"v_01","output":"p99"}
+{"case_id":"c6","variant_id":"v_02","output":"p99"}
+{"case_id":"c6","variant_id":"v_03","output":"p99"}
+{"case_id":"c7","variant_id":"v_01","output":"transactional outbox"}
+{"case_id":"c7","variant_id":"v_02","output":"transactional outbox"}
+{"case_id":"c7","variant_id":"v_03","output":"transactional outbox"}
+{"case_id":"c8","variant_id":"v_01","output":"pgvector"}
+{"case_id":"c8","variant_id":"v_02","output":"pgvector"}
+{"case_id":"c8","variant_id":"v_03","output":"pgvector"}
+{"case_id":"c9","variant_id":"v_01","output":"confidence interval"}
+{"case_id":"c9","variant_id":"v_02","output":"confidence interval"}
+{"case_id":"c9","variant_id":"v_03","output":"confidence interval"}
+{"case_id":"c10","variant_id":"v_01","output":"mlflow"}
+{"case_id":"c10","variant_id":"v_02","output":"mlflow"}
+{"case_id":"c10","variant_id":"v_03","output":"mlflow"}

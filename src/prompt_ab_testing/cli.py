@@ -1,6 +1,7 @@
 import argparse
 import json
 import math
+import os
 import platform
 import random
 import re
@@ -11,11 +12,20 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from .producer import (
+    GenerationValidationError,
+    OpenAICompatibleGenerator,
+    generate_output_matrix,
+)
+
 
 DEFAULT_CASES = "data/fixtures/cases.jsonl"
 DEFAULT_OUTPUTS = "data/fixtures/outputs.jsonl"
 DEFAULT_VARIANTS = "data/fixtures/variants.json"
 DEFAULT_OUTPUT = "benchmarks/results/prompt-ab-baseline.json"
+DEFAULT_GENERATION_CASES = "data/fixtures/generation-cases.jsonl"
+DEFAULT_TEMPLATES = "data/fixtures/prompt-templates.json"
+DEFAULT_PROVENANCE = "data/fixtures/outputs.provenance.json"
 COMMAND = (
     "python -m prompt_ab_testing benchmark --cases data/fixtures/cases.jsonl "
     "--outputs data/fixtures/outputs.jsonl --variants data/fixtures/variants.json "
@@ -351,20 +361,46 @@ def evaluate(
     }
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(
         description="Score supplied blinded prompt outputs; this command does not call an LLM."
     )
-    parser.add_argument("command", choices=["benchmark"], nargs="?", default="benchmark")
+    parser.add_argument(
+        "command", choices=["benchmark", "generate"], nargs="?", default="benchmark"
+    )
     parser.add_argument("--cases", default=DEFAULT_CASES)
     parser.add_argument("--outputs", default=DEFAULT_OUTPUTS)
     parser.add_argument("--variants", default=DEFAULT_VARIANTS)
     parser.add_argument("--output", default=DEFAULT_OUTPUT)
-    args = parser.parse_args()
+    parser.add_argument("--generation-cases", default=DEFAULT_GENERATION_CASES)
+    parser.add_argument("--templates", default=DEFAULT_TEMPLATES)
+    parser.add_argument("--provenance", default=DEFAULT_PROVENANCE)
+    parser.add_argument("--max-tokens", type=int, default=24)
+    parser.add_argument("--warmup", type=int, default=1)
+    args = parser.parse_args(argv)
     try:
+        if args.command == "generate":
+            result = generate_output_matrix(
+                generator=OpenAICompatibleGenerator.from_environment(),
+                cases_path=args.generation_cases,
+                templates_path=args.templates,
+                variant_ids=load_variants(args.variants),
+                output_path=args.outputs,
+                provenance_path=args.provenance,
+                max_tokens=args.max_tokens,
+                warmup_iterations=args.warmup,
+                producer_source_commit=os.environ.get(
+                    "PROMPT_AB_PRODUCER_SOURCE_COMMIT", "unverified"
+                ),
+                producer_image_digest=os.environ.get(
+                    "PROMPT_AB_PRODUCER_IMAGE_DIGEST", "unverified"
+                ),
+            )
+            print(json.dumps(result, indent=2))
+            return
         result = evaluate(args.cases, args.outputs, args.variants)
-    except (OSError, ExperimentValidationError) as exc:
-        print(f"evaluation failed: {exc}", file=sys.stderr)
+    except (OSError, ExperimentValidationError, GenerationValidationError) as exc:
+        print(f"{args.command} failed: {exc}", file=sys.stderr)
         raise SystemExit(2) from exc
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
