@@ -68,6 +68,12 @@ class PromptABTests(unittest.TestCase):
         self.assertEqual(leader["sample_count"], 10)
         self.assertEqual(leader["ci95_method"], "seeded-bootstrap")
         self.assertEqual(leader["bootstrap_resamples"], 10_000)
+        self.assertEqual(result["leading_variant_ids"], ["v_02", "v_03"])
+        for comparison in result["baseline_comparisons"]:
+            self.assertEqual(comparison["mean_uplift"], 0.8)
+            self.assertEqual(comparison["uplift_ci95_lower"], 0.5)
+            self.assertEqual(comparison["uplift_ci95_upper"], 1.0)
+            self.assertTrue(comparison["conclusive"])
 
     def test_emits_shared_contract_and_uncertainty(self):
         result = evaluate()
@@ -107,6 +113,7 @@ class PromptABTests(unittest.TestCase):
         self.assertEqual(comparison["uplift_ci95_upper"], 1.0)
         self.assertEqual(comparison["bootstrap_resamples"], 1)
         self.assertTrue(comparison["conclusive"])
+        self.assertEqual(result["baseline_comparisons"][0]["mean_uplift"], 1.0)
 
     def test_preserves_ties_without_claiming_a_pairwise_winner(self):
         cases = self.write_jsonl(

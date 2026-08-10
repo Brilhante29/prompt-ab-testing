@@ -2,4 +2,4 @@
 
 Verdict: manually aligned after implementation.
 
-The public narrative starts with the measured number, preserves opaque IDs, discloses the four-case sample, and avoids statistical-significance or general-superiority claims.
+The public narrative starts with measured scores, preserves opaque IDs, discloses the ten-case sample and pinned local model, and avoids general-superiority claims between tied prompts.

@@ -2,16 +2,18 @@ id: 10
 name: prompt-ab-testing
 program:
   id: ai-evaluation-retrieval
-  narrative_fit: Compares prompt outputs with the same evidence contract used by the AI Evaluation and RAG Platform.
+  narrative_fit: Generates and blindly compares prompt outputs with the same evidence contract used by the AI Evaluation and RAG Platform.
   shared_assets:
     - blinded experiment contract
     - deterministic answer metrics
     - portfolio-compatible benchmark result
 status: published
-claim: Local-first evaluator for supplied blinded prompt outputs with deterministic metrics, exhaustive small-sample bootstrap, and paired uncertainty.
+claim: Local-first prompt generation and blinded evaluation with a pinned model, deterministic metrics, and paired uncertainty.
 stack:
   - python
   - bootstrap-statistics
+  - ollama
+  - openai-compatible-http
   - jsonl
   - unittest
   - docker
@@ -30,26 +32,26 @@ decision_brain:
     review_path: sdd/reuse-improvement-review.md
     current_status: backlog_recorded
   principles:
-    coupling_rule: Scoring consumes provider-neutral cases and blinded outputs and never imports a prompt runner.
+    coupling_rule: The HTTP producer is an outer adapter; scoring consumes provider-neutral blinded outputs and never imports the provider.
     solid: [srp, ocp, lsp, isp, dip]
     simplicity_rule: Use deterministic task metrics and paired bootstrap; never use fixture multipliers or semantic variant labels.
-    testability_rule: Tests replace supplied outputs and prove that the result changes from evidence.
+    testability_rule: Tests replace both HTTP transport and supplied outputs, proving generation and scoring independently.
   stack_profile: python
   api_style: cli-first
   messaging: none
   cloud:
-    mode: none
-    local_provider: kumo
-    real_provider_target: none
-    adapter_rule: Prompt runners produce the output contract and remain outside the evaluator.
+    mode: local-first-pluggable
+    local_provider: ollama
+    real_provider_target: openai-compatible-endpoint
+    adapter_rule: Provider-specific transport remains outside the evaluator behind the generated-output contract.
   database: fixture-files
   runtime: python-cli
-  library_policy: Use standard-library metrics and bootstrap for the local benchmark; provider SDKs belong in output producers.
+  library_policy: Use standard-library HTTP, metrics, and bootstrap; no provider SDK enters the scoring core.
   record_path: sdd/technical-decision.md
 architecture:
   style: functional-core-imperative-shell
-  reason: Validation, scoring, and paired uncertainty are pure policies around file-based experiment adapters.
-  dependency_rule: The evaluator never generates prompts or imports provider, cloud, transport, or billing SDKs.
+  reason: Generation is an imperative adapter while validation, scoring, and paired uncertainty remain pure policies over files.
+  dependency_rule: The producer depends on an OpenAI-compatible port; the evaluator never imports provider, cloud, transport, or billing code.
 design_system:
   tokens: .portfolio/design-system/tokens.yaml
   readme_components: [readme_header, benchmark_card, architecture_card, references_table]

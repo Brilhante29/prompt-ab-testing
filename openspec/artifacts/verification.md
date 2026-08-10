@@ -1,17 +1,14 @@
 # Verification: prompt-ab-testing
 
-## Completed
+## Completed Locally
 
-- Six unit tests pass, including paired uplift and tie behavior.
-- Failure cases cover unblinded metadata and incomplete matrices.
-- Clean Python 3.12 reproduced the exact locked CI installation.
-- Docker build and default benchmark execution pass offline as non-root.
-- Source SHA `b7ea2d06bbf520dced03f3671c5ffde9b76647f9` passed GitHub Actions run `30860542964`.
-- V2 schema, raw artifact digest, image digest, and committed Git fixture/config/lock digests validate.
-- README, V1, V2, and manifest values match.
+- Eight unit tests cover scoring, ties, matrix completeness, fake HTTP generation, and template mismatch.
+- A pinned local model generated 30 responses after one excluded warmup with zero failures.
+- Output provenance binds model, producer source/image, artifact inputs, token counts, and latency.
+- Evaluation preserves the tied leaders while separately reporting paired uplift against baseline.
+- Docker evaluation runs offline as a non-root user.
+- V2 schema and Git-bound provenance validation are required before publication.
 
 ## Boundary
 
-The four-case fixture does not prove statistical significance or representativeness. The paired interval includes zero and the conclusion remains inconclusive.
-
-The exact publication commit must pass the same remote workflow after push.
+Ten hand-authored context cases are a portfolio benchmark, not a general prompt-quality study. The measured result supports only the exact-answer formatting claim on the committed workload and model.

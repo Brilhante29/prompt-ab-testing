@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "timestamp": "2026-08-10T01:14:55.012725Z",
+  "provider": {
+    "id": "ollama-local",
+    "interface": "openai-compatible-chat-completions",
+    "model": "qwen2.5-coder:0.5b",
+    "model_digest": "sha256:4ff64a7f502a08b7616edb8ca0a79eb1853fc363d842b7df4b46915d11a3fb09"
+  },
+  "producer": {
+    "source_commit": "be48b03f4c440803f577d3ca0af3494744b56b16",
+    "image_digest": "sha256:a451c1d64ff6f69878967474da28ba1e3cb84f95fe62bc4d5e0cebacc7aab32a"
+  },
+  "generation": {
+    "temperature": 0,
+    "max_tokens": 24,
+    "warmup_iterations": 1,
+    "measured_requests": 30,
+    "failures": 0,
+    "prompt_tokens": 2158,
+    "completion_tokens": 262,
+    "latency_ms": {
+      "mean": 612.702481,
+      "p95": 941.554527
+    }
+  },
+  "artifacts": {
+    "outputs_sha256": "sha256:c5b65b4f7e1915412572dce58bd52d0990c499a6337dc4d614e6f1fb8edb3450",
+    "generation_cases_sha256": "sha256:3f2f40524f2d32979cfecd679d0e9d53e8aac8078e561969e8145a19ee4a2172",
+    "templates_sha256": "sha256:e01d4eebcefb9f5bf55a19f09b9b474faaab561a0d1f5aeaf43b5551c13bc64d"
+  }
+}

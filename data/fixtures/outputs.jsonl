@@ -1,30 +1,30 @@
-{"case_id":"c1","variant_id":"v_01","output":"kafka"}
+{"case_id":"c1","variant_id":"v_01","output":"The platform uses Apache Kafka as its broker, which is responsible for storing and processing data in a distributed manner."}
 {"case_id":"c1","variant_id":"v_02","output":"kafka"}
-{"case_id":"c1","variant_id":"v_03","output":"kafka"}
-{"case_id":"c2","variant_id":"v_01","output":"kotlin"}
-{"case_id":"c2","variant_id":"v_02","output":"kotlin"}
-{"case_id":"c2","variant_id":"v_03","output":"kotlin"}
-{"case_id":"c3","variant_id":"v_01","output":"recall at k"}
-{"case_id":"c3","variant_id":"v_02","output":"recall at k"}
-{"case_id":"c3","variant_id":"v_03","output":"recall at k"}
-{"case_id":"c4","variant_id":"v_01","output":"kumo"}
-{"case_id":"c4","variant_id":"v_02","output":"kumo"}
-{"case_id":"c4","variant_id":"v_03","output":"kumo"}
-{"case_id":"c5","variant_id":"v_01","output":"graphql"}
-{"case_id":"c5","variant_id":"v_02","output":"graphql"}
-{"case_id":"c5","variant_id":"v_03","output":"graphql"}
-{"case_id":"c6","variant_id":"v_01","output":"p99"}
+{"case_id":"c1","variant_id":"v_03","output":"Kafka"}
+{"case_id":"c2","variant_id":"v_01","output":"Kotlin implements the service using coroutines and null safety on the JVM."}
+{"case_id":"c2","variant_id":"v_02","output":"Kotlin"}
+{"case_id":"c2","variant_id":"v_03","output":"Kotlin"}
+{"case_id":"c3","variant_id":"v_01","output":"The exact full name of the retrieval metric is \"recall\"."}
+{"case_id":"c3","variant_id":"v_02","output":"recall"}
+{"case_id":"c3","variant_id":"v_03","output":"Recall"}
+{"case_id":"c4","variant_id":"v_01","output":"Kumo is used locally for testing cloud behavior."}
+{"case_id":"c4","variant_id":"v_02","output":"Kumo"}
+{"case_id":"c4","variant_id":"v_03","output":"Kumo"}
+{"case_id":"c5","variant_id":"v_01","output":"The dashboard uses GraphQL, which is an API style that allows for the creation of dynamic and interactive web applications by providing a"}
+{"case_id":"c5","variant_id":"v_02","output":"GraphQL"}
+{"case_id":"c5","variant_id":"v_03","output":"GraphQL"}
+{"case_id":"c6","variant_id":"v_01","output":"The slowest one percent of the tail latency is reported as p99."}
 {"case_id":"c6","variant_id":"v_02","output":"p99"}
 {"case_id":"c6","variant_id":"v_03","output":"p99"}
-{"case_id":"c7","variant_id":"v_01","output":"transactional outbox"}
-{"case_id":"c7","variant_id":"v_02","output":"transactional outbox"}
-{"case_id":"c7","variant_id":"v_03","output":"transactional outbox"}
-{"case_id":"c8","variant_id":"v_01","output":"pgvector"}
+{"case_id":"c7","variant_id":"v_01","output":"The transactional outbox records the domain change and pending message in a single database transaction, which is a common practice for"}
+{"case_id":"c7","variant_id":"v_02","output":"domain change, pending message"}
+{"case_id":"c7","variant_id":"v_03","output":"Domain change and pending message"}
+{"case_id":"c8","variant_id":"v_01","output":"PostgreSQL stores embedding vectors through pgvector, which is a type of vector database that allows for efficient storage and retrieval of"}
 {"case_id":"c8","variant_id":"v_02","output":"pgvector"}
 {"case_id":"c8","variant_id":"v_03","output":"pgvector"}
-{"case_id":"c9","variant_id":"v_01","output":"confidence interval"}
+{"case_id":"c9","variant_id":"v_01","output":"Every experiment reports a 95% confidence interval, so readers can see statistical uncertainty."}
 {"case_id":"c9","variant_id":"v_02","output":"confidence interval"}
-{"case_id":"c9","variant_id":"v_03","output":"confidence interval"}
-{"case_id":"c10","variant_id":"v_01","output":"mlflow"}
+{"case_id":"c9","variant_id":"v_03","output":"Confidence interval"}
+{"case_id":"c10","variant_id":"v_01","output":"Trained models and their lineage are registered in MLflow before deployment, which is a platform that manages and organizes model"}
 {"case_id":"c10","variant_id":"v_02","output":"mlflow"}
-{"case_id":"c10","variant_id":"v_03","output":"mlflow"}
+{"case_id":"c10","variant_id":"v_03","output":"MLflow"}

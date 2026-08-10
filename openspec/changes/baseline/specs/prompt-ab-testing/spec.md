@@ -35,16 +35,36 @@ A unique apparent leader SHALL be compared with the runner-up using paired per-c
 - THEN `conclusive` is false
 - AND no general superiority claim is made.
 
+Every non-baseline variant SHALL also be compared with the first declared variant through paired per-case differences, including when leaders tie.
+
+#### Scenario: tied leaders beat baseline
+
+- GIVEN two variants tied for the highest mean
+- WHEN both paired intervals against baseline exclude zero
+- THEN both baseline comparisons are reported as conclusive
+- AND the tied leaders remain tied.
+
 ### Requirement: explicit work accounting
 
 The result SHALL distinguish process repetitions from measured case/variant evaluations.
 
-#### Scenario: one four-case three-variant run
+#### Scenario: one ten-case three-variant run
 
-- GIVEN four cases and three variants evaluated once
+- GIVEN ten cases and three variants evaluated once
 - WHEN the result is emitted
 - THEN `repeat` is `1`
-- AND `measured_iterations` is `12`.
+- AND `measured_iterations` is `30`.
+
+### Requirement: replaceable generation adapter
+
+The system SHALL generate outputs through an OpenAI-compatible port and SHALL record model, producer, token, latency, failure, and artifact provenance without coupling scoring to transport.
+
+#### Scenario: local provider generation
+
+- GIVEN a pinned Ollama model behind the compatible endpoint
+- WHEN generation completes
+- THEN every blinded case/variant output is written
+- AND the evaluator can consume the files offline.
 
 ### Requirement: fail-closed experiment validation
 

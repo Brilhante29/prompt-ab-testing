@@ -190,6 +190,32 @@ def score_case(metric: str, expected: str, observed: str) -> float:
     raise ExperimentValidationError(f"unsupported metric: {metric}")
 
 
+def paired_uplift(
+    challenger_id: str,
+    baseline_id: str,
+    scores_by_variant: dict[str, list[float]],
+) -> dict[str, Any]:
+    differences = [
+        challenger - baseline
+        for challenger, baseline in zip(
+            scores_by_variant[challenger_id], scores_by_variant[baseline_id]
+        )
+    ]
+    uplift, lower, upper, resample_count, interval_method = bootstrap_mean_ci95(
+        differences
+    )
+    return {
+        "challenger_variant_id": challenger_id,
+        "baseline_variant_id": baseline_id,
+        "mean_uplift": round(uplift, 4),
+        "uplift_ci95_lower": round(lower, 4),
+        "uplift_ci95_upper": round(upper, 4),
+        "ci95_method": interval_method,
+        "bootstrap_resamples": resample_count,
+        "conclusive": lower > 0 or upper < 0,
+    }
+
+
 def _percentile(values: list[float], percentile: float) -> float:
     ordered = sorted(values)
     position = (len(ordered) - 1) * percentile
@@ -298,24 +324,20 @@ def evaluate(
             (variant_id for variant_id in variant_ids if variant_id != leader_id),
             key=lambda variant_id: (-means_by_variant[variant_id], variant_id),
         )
-        paired_differences = [
-            leader_score - runner_score
-            for leader_score, runner_score in zip(
-                scores_by_variant[leader_id], scores_by_variant[runner_up_id]
-            )
-        ]
-        uplift, lower, upper, resample_count, interval_method = bootstrap_mean_ci95(
-            paired_differences
+        paired = paired_uplift(
+            leader_id,
+            runner_up_id,
+            scores_by_variant,
         )
         comparison = {
             "leader_variant_id": leader_id,
             "runner_up_variant_id": runner_up_id,
-            "mean_uplift": round(uplift, 4),
-            "uplift_ci95_lower": round(lower, 4),
-            "uplift_ci95_upper": round(upper, 4),
-            "ci95_method": interval_method,
-            "bootstrap_resamples": resample_count,
-            "conclusive": lower > 0,
+            "mean_uplift": paired["mean_uplift"],
+            "uplift_ci95_lower": paired["uplift_ci95_lower"],
+            "uplift_ci95_upper": paired["uplift_ci95_upper"],
+            "ci95_method": paired["ci95_method"],
+            "bootstrap_resamples": paired["bootstrap_resamples"],
+            "conclusive": paired["uplift_ci95_lower"] > 0,
         }
     else:
         comparison = {
@@ -328,6 +350,11 @@ def evaluate(
             "bootstrap_resamples": 0,
             "conclusive": False,
         }
+    baseline_id = variant_ids[0]
+    baseline_comparisons = [
+        paired_uplift(variant_id, baseline_id, scores_by_variant)
+        for variant_id in variant_ids[1:]
+    ]
     return {
         "project": "prompt-ab-testing",
         "metric": "highest_mean_score",
@@ -357,13 +384,14 @@ def evaluate(
         "blinded": True,
         "leading_variant_ids": leaders,
         "paired_comparison": comparison,
+        "baseline_comparisons": baseline_comparisons,
         "variants": variants,
     }
 
 
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(
-        description="Score supplied blinded prompt outputs; this command does not call an LLM."
+        description="Generate provider-neutral outputs or score them through a blinded evaluator."
     )
     parser.add_argument(
         "command", choices=["benchmark", "generate"], nargs="?", default="benchmark"
