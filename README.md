@@ -32,7 +32,7 @@ Prompt changes are usually shipped on vibes: someone tries three inputs, likes t
 
 Ten cases times three variants give 30 measured responses; each variant uses 10,000 seeded bootstrap resamples. The run consumed `2,158` prompt and `262` completion tokens after one excluded warm-up request.
 
-How to read it: the claim is deliberately narrow. Asking for concise extraction improved exact-answer compliance over asking for explanatory sentences, which exact match penalizes by construction. The two concise prompts tied, so the experiment does not claim either is generally better; the confidence interval is wide because ten cases is a small sample.
+**How to read it:** the claim is deliberately narrow. Asking for concise extraction improved exact-answer compliance over asking for explanatory sentences, which exact match penalizes by construction. The two concise prompts tied, so the experiment does not claim either is generally better; the confidence interval is wide because ten cases is a small sample.
 
 ## Quickstart
 
